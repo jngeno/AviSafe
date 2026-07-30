@@ -71,8 +71,19 @@ export interface PredictionRequest {
 export interface PredictionResponse {
   id: number;
   experiment_id: number;
+  input_features: Record<string, unknown>;
   predicted_class: string;
   probabilities: Record<string, number>;
   shap_explanation: { Feature: string; Contribution: number; Absolute: number }[];
   created_at: string;
+}
+
+export interface BatchPredictionError {
+  row: number;
+  error: string;
+}
+
+export interface BatchPredictionResponse {
+  results: PredictionResponse[];
+  errors: BatchPredictionError[];
 }

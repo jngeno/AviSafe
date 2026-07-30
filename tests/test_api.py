@@ -180,3 +180,44 @@ def test_prediction_against_missing_experiment_is_404():
         "/predictions", json={"experiment_id": 10**9, "features": {}}
     )
     assert response.status_code == 404
+
+
+def test_batch_prediction_from_csv(trained_experiment_id, tmp_path):
+
+    csv_path = tmp_path / "batch.csv"
+    csv_path.write_text(
+        "Weather_Condition,Broad_Phase_Of_Flight,Country\n"
+        "IMC,Landing,United States\n"
+        "VMC,Cruise,Canada\n"
+        ",Takeoff,\n"  # sparse row -- missing columns should default, not error
+    )
+
+    with open(csv_path, "rb") as fh:
+        response = client.post(
+            "/predictions/batch",
+            data={"experiment_id": trained_experiment_id},
+            files={"file": ("batch.csv", fh, "text/csv")},
+        )
+
+    assert response.status_code == 200
+    body = response.json()
+    assert len(body["results"]) == 3
+    assert body["errors"] == []
+    for row in body["results"]:
+        assert row["predicted_class"] in {"CFIT", "LOC-I", "Runway Excursion"}
+        assert row["input_features"]
+
+
+def test_batch_prediction_rejects_non_csv(trained_experiment_id, tmp_path):
+
+    txt_path = tmp_path / "notacsv.txt"
+    txt_path.write_text("hello")
+
+    with open(txt_path, "rb") as fh:
+        response = client.post(
+            "/predictions/batch",
+            data={"experiment_id": trained_experiment_id},
+            files={"file": ("notacsv.txt", fh, "text/plain")},
+        )
+
+    assert response.status_code == 422

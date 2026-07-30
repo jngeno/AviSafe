@@ -97,7 +97,18 @@ class PredictionResponse(BaseModel):
 
     id: int
     experiment_id: int
+    input_features: dict[str, Any]
     predicted_class: str
     probabilities: dict[str, float]
     shap_explanation: list[dict[str, Any]]
     created_at: datetime
+
+
+class BatchPredictionError(BaseModel):
+    row: int
+    error: str
+
+
+class BatchPredictionResponse(BaseModel):
+    results: list[PredictionResponse]
+    errors: list[BatchPredictionError]

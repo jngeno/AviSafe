@@ -11,18 +11,21 @@ joblib==1.5.3
 python-dotenv==1.2.2
 pytest==9.1.1
 
-# --- Planned service/database layer (README roadmap items 5-7: database,
-# FastAPI, dashboard). Not yet installed or exercised in this environment
-# -- src/api, src/database, and frontend/ are still empty. The previous
-# pins here (psycopg[binary]==3.12.0, alembic==1.34.0) were not real
-# published releases and would have made `pip install -r requirements.txt`
-# fail outright; corrected to real current releases as a placeholder, but
-# treat as unverified until that layer is actually built.
-fastapi==0.111.0
-uvicorn[standard]==0.30.0
-sqlalchemy==2.0.3
-alembic==1.13.2
-psycopg[binary]==3.2.3
-pydantic==2.8.3
-httpx==0.27.0
+# --- Service/database layer: installed and exercised end-to-end
+# (src/api, src/database, alembic migrations against PostgreSQL, live
+# training/prediction endpoints all tested in this environment).
+fastapi==0.141.1
+uvicorn[standard]==0.52.0
+sqlalchemy==2.0.51
+alembic==1.18.5
+psycopg[binary]==3.3.4
+pydantic==2.13.4
+pydantic-settings==2.14.2
+httpx==0.28.1
+python-multipart==0.0.32
+
+# --- Not yet used: no chart/report code in src/visualization currently
+# calls plotly (the React dashboard uses hand-built SVG/CSS charts
+# instead -- see frontend/). Kept as a placeholder for the planned
+# Python-side report/notebook visualisation layer.
 plotly==5.18.0

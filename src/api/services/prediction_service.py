@@ -1,5 +1,5 @@
 """
-Live single-record prediction service.
+Live single-record and batch prediction service.
 
 Loads a trained model from disk, encodes a raw feature dict using the
 categorical encodings captured at training time (see
@@ -30,6 +30,11 @@ from src.database.repositories import PredictionRepository
 from src.explainability.shap_explainer import SHAPExplainer
 
 logger = LoggerManager.get_logger(__name__)
+
+# Batch CSV import is meant for small, hand-curated samples exercised
+# through the UI, not bulk scoring -- capped to keep per-row SHAP
+# computation (and the resulting number of prediction_logs rows) bounded.
+MAX_BATCH_ROWS = 200
 
 
 class PredictionError(Exception):
@@ -67,24 +72,27 @@ def encode_features(
     return pd.DataFrame([row], columns=feature_names)
 
 
-def predict(
-    db,
-    experiment: models.Experiment,
-    raw_features: dict[str, Any],
-) -> models.PredictionLog:
-    """
-    Run a live prediction against the given experiment's persisted
-    model and log the result.
-    """
+def _load_model(experiment: models.Experiment) -> Any:
 
     model_file = Path(experiment.model_path) / "model.joblib"
 
     try:
-        model = joblib.load(model_file)
+        return joblib.load(model_file)
     except FileNotFoundError as exc:
         raise PredictionError(
             f"Model artifact not found at {model_file}"
         ) from exc
+
+
+def _predict_row(
+    model: Any,
+    experiment: models.Experiment,
+    raw_features: dict[str, Any],
+) -> tuple[str, dict[str, float], list[dict[str, Any]]]:
+    """
+    Run one row through an already-loaded model. Returns
+    (predicted_class, probabilities, shap_explanation).
+    """
 
     X = encode_features(
         raw_features, experiment.feature_names, experiment.categorical_encodings
@@ -121,6 +129,25 @@ def predict(
 
     shap_explanation = local.head(10).to_dict(orient="records")
 
+    return predicted_class, probabilities, shap_explanation
+
+
+def predict(
+    db,
+    experiment: models.Experiment,
+    raw_features: dict[str, Any],
+) -> models.PredictionLog:
+    """
+    Run a live prediction against the given experiment's persisted
+    model and log the result.
+    """
+
+    model = _load_model(experiment)
+
+    predicted_class, probabilities, shap_explanation = _predict_row(
+        model, experiment, raw_features
+    )
+
     logger.info(
         "Predicted %s for experiment %s",
         predicted_class,
@@ -135,3 +162,57 @@ def predict(
         probabilities=probabilities,
         shap_explanation=shap_explanation,
     )
+
+
+def predict_many(
+    db,
+    experiment: models.Experiment,
+    rows: list[dict[str, Any]],
+) -> tuple[list[models.PredictionLog], list[dict[str, Any]]]:
+    """
+    Run a batch of raw feature dicts (e.g. parsed from an uploaded CSV)
+    through the given experiment's model, loading it once and reusing
+    it across all rows. Rows that fail to predict (bad values, etc.)
+    are collected as errors rather than aborting the whole batch.
+
+    Returns (successful PredictionLog records, per-row error details).
+    """
+
+    model = _load_model(experiment)
+
+    results: list[models.PredictionLog] = []
+
+    errors: list[dict[str, Any]] = []
+
+    for index, raw_features in enumerate(rows):
+
+        try:
+            predicted_class, probabilities, shap_explanation = _predict_row(
+                model, experiment, raw_features
+            )
+
+        except Exception as exc:  # noqa: BLE001 -- isolate bad rows, don't abort the batch
+
+            errors.append({"row": index, "error": str(exc)})
+
+            continue
+
+        record = PredictionRepository.create(
+            db,
+            experiment_id=experiment.id,
+            input_features=raw_features,
+            predicted_class=predicted_class,
+            probabilities=probabilities,
+            shap_explanation=shap_explanation,
+        )
+
+        results.append(record)
+
+    logger.info(
+        "Batch predicted %d/%d rows for experiment %s",
+        len(results),
+        len(rows),
+        experiment.experiment_id,
+    )
+
+    return results, errors

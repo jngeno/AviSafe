@@ -1,5 +1,6 @@
 import axios from 'axios';
 import type {
+  BatchPredictionResponse,
   ExperimentDetail,
   ExperimentSummary,
   PredictionRequest,
@@ -48,5 +49,19 @@ export async function listTrainingJobs(): Promise<TrainingJob[]> {
 
 export async function createPrediction(payload: PredictionRequest): Promise<PredictionResponse> {
   const { data } = await api.post<PredictionResponse>('/predictions', payload);
+  return data;
+}
+
+export async function createBatchPredictions(
+  experimentId: number,
+  file: File,
+): Promise<BatchPredictionResponse> {
+  const form = new FormData();
+  form.append('experiment_id', String(experimentId));
+  form.append('file', file);
+
+  const { data } = await api.post<BatchPredictionResponse>('/predictions/batch', form, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
   return data;
 }
