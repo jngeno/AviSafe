@@ -1,0 +1,146 @@
+[build-system]
+requires = ["setuptools>=75.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+# ==========================================================
+# Project Information
+# ==========================================================
+
+[project]
+name = "avisafe"
+version = "0.1.0"
+description = "An Explainable AI Framework for Systemic Aviation Accident Causation Analysis"
+readme = "README.md"
+requires-python = ">=3.12"
+
+authors = [
+    { name = "John Kipkirui" }
+]
+
+license = { text = "MIT" }
+
+keywords = [
+    "aviation",
+    "machine-learning",
+    "explainable-ai",
+    "shap",
+    "lime",
+    "aviation-safety",
+    "xai",
+    "ntsb",
+    "research"
+]
+
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.12",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence"
+]
+
+dynamic = ["dependencies"]
+
+# ==========================================================
+# Setuptools
+# ==========================================================
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["src*"]
+
+# ==========================================================
+# Pytest
+# ==========================================================
+
+[tool.pytest.ini_options]
+
+pythonpath = [
+    "."
+]
+
+testpaths = [
+    "tests"
+]
+
+python_files = [
+    "test_*.py"
+]
+
+addopts = [
+    "-ra",
+    "--strict-markers"
+]
+
+# ==========================================================
+# Coverage
+# ==========================================================
+
+[tool.coverage.run]
+
+source = [
+    "src"
+]
+
+omit = [
+    "tests/*"
+]
+
+# ==========================================================
+# Black
+# ==========================================================
+
+[tool.black]
+
+line-length = 88
+
+target-version = [
+    "py312"
+]
+
+# ==========================================================
+# isort
+# ==========================================================
+
+[tool.isort]
+
+profile = "black"
+
+line_length = 88
+
+multi_line_output = 3
+
+# ==========================================================
+# Ruff
+# ==========================================================
+
+[tool.ruff]
+
+line-length = 88
+
+target-version = "py312"
+
+exclude = [
+    "__pycache__",
+    "build",
+    "dist"
+]
+
+[tool.ruff.lint]
+
+select = [
+    "E",
+    "F",
+    "I",
+    "UP",
+    "B"
+]
+
+ignore = [
+    "E501"
+]
