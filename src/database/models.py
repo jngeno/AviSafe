@@ -13,9 +13,9 @@ single query.
 from __future__ import annotations
 
 import uuid
-from datetime import datetime
+from datetime import date, datetime
 
-from sqlalchemy import DateTime, Float, ForeignKey, Integer, String, Text, func
+from sqlalchemy import Date, DateTime, Float, ForeignKey, Integer, String, Text, func
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -122,6 +122,18 @@ class SafetyRecommendationRecord(Base):
     confidence: Mapped[float] = mapped_column(Float)
 
     evidence: Mapped[list] = mapped_column(JSONB, default=list)
+
+    icao_reference: Mapped[str] = mapped_column(String(255), default="")
+
+    hfacs_classification: Mapped[str] = mapped_column(String(255), default="")
+
+    swiss_cheese_layer: Mapped[str] = mapped_column(String(100), default="")
+
+    status: Mapped[str] = mapped_column(String(20), default="Open", index=True)
+
+    assigned_officer: Mapped[str | None] = mapped_column(String(150), nullable=True)
+
+    due_date: Mapped[date | None] = mapped_column(Date, nullable=True)
 
     experiment: Mapped["Experiment"] = relationship(back_populates="recommendations")
 

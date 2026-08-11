@@ -4,7 +4,7 @@ Pydantic request/response schemas for the AviSafe API.
 
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import date, datetime
 from typing import Any
 
 from pydantic import BaseModel, ConfigDict
@@ -21,12 +21,26 @@ class FeatureImportanceOut(BaseModel):
 class RecommendationOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
+    id: int
+    experiment_id: int
     category: str
     priority: str
     recommendation: str
     stakeholder: str
     confidence: float
     evidence: list[str]
+    icao_reference: str
+    hfacs_classification: str
+    swiss_cheese_layer: str
+    status: str
+    assigned_officer: str | None
+    due_date: date | None
+
+
+class RecommendationUpdate(BaseModel):
+    status: str | None = None
+    assigned_officer: str | None = None
+    due_date: date | None = None
 
 
 class PatternOut(BaseModel):
@@ -112,3 +126,54 @@ class BatchPredictionError(BaseModel):
 class BatchPredictionResponse(BaseModel):
     results: list[PredictionResponse]
     errors: list[BatchPredictionError]
+
+
+class AircraftAnalyticsOut(BaseModel):
+    manufacturer: str
+    total_accidents: int
+    total_incidents: int
+    fatal_accidents: int
+    category_breakdown: dict[str, int]
+    top_flight_phase: str | None
+    avg_seats: float | None
+
+
+class HotspotPoint(BaseModel):
+    latitude: float
+    longitude: float
+    category: str
+    count: int
+
+
+class DatasetInfo(BaseModel):
+    name: str
+    path: str
+    rows: int
+    columns: int
+    date_range: str
+    accident_categories_covered: list[str]
+    size_mb: float
+    status: str
+
+
+class ReportSummary(BaseModel):
+    filename: str
+    target_column: str | None
+    experiment_id: str | None
+    generated_at: datetime
+    size_kb: float
+
+
+class DashboardSummary(BaseModel):
+    total_accidents: int
+    total_incidents: int
+    active_datasets: int
+    models_trained: int
+    best_model: str | None
+    best_accuracy: float | None
+    open_recommendations: int
+    high_risk_categories: list[str]
+    category_breakdown: dict[str, int]
+    monthly_trend: list[dict[str, Any]]
+    flight_phase_breakdown: dict[str, int]
+    weather_breakdown: dict[str, int]

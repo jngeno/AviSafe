@@ -134,8 +134,11 @@ export function Predict() {
   return (
     <div>
       <div className="page-header">
-        <h1>Live prediction</h1>
-        <p>Run one record, or a whole CSV of records, through a trained model and see its SHAP explanation.</p>
+        <h1>Flight Risk Assessment</h1>
+        <p>
+          Run one record, or a whole CSV of records, through a trained model using its real
+          input features and see the category prediction with its SHAP explanation.
+        </p>
       </div>
 
       {experiments.length === 0 && (

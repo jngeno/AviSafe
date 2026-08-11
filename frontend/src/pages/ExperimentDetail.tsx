@@ -88,13 +88,20 @@ export function ExperimentDetailPage() {
 
       <div className="card">
         <h2>Model parameters</h2>
+        <p>
+          Non-default values only — the underlying estimator accepts many more
+          constructor arguments left at their library default (shown as null and
+          omitted here).
+        </p>
         <table>
           <tbody>
-            {Object.entries(experiment.parameters).map(([key, value]) => (
-              <tr key={key}>
-                <td style={{ color: 'var(--text-muted)' }}>{key}</td>
-                <td className="tabular">{String(value)}</td>
-              </tr>
+            {Object.entries(experiment.parameters)
+              .filter(([, value]) => value !== null)
+              .map(([key, value]) => (
+                <tr key={key}>
+                  <td style={{ color: 'var(--text-muted)' }}>{key}</td>
+                  <td className="tabular">{String(value)}</td>
+                </tr>
             ))}
           </tbody>
         </table>

@@ -5,12 +5,26 @@ export interface FeatureImportance {
 }
 
 export interface Recommendation {
+  id: number;
+  experiment_id: number;
   category: string;
   priority: string;
   recommendation: string;
   stakeholder: string;
   confidence: number;
   evidence: string[];
+  icao_reference: string;
+  hfacs_classification: string;
+  swiss_cheese_layer: string;
+  status: string;
+  assigned_officer: string | null;
+  due_date: string | null;
+}
+
+export interface RecommendationUpdate {
+  status?: string;
+  assigned_officer?: string;
+  due_date?: string;
 }
 
 export interface Pattern {
@@ -86,4 +100,55 @@ export interface BatchPredictionError {
 export interface BatchPredictionResponse {
   results: PredictionResponse[];
   errors: BatchPredictionError[];
+}
+
+export interface AircraftAnalytics {
+  manufacturer: string;
+  total_accidents: number;
+  total_incidents: number;
+  fatal_accidents: number;
+  category_breakdown: Record<string, number>;
+  top_flight_phase: string | null;
+  avg_seats: number | null;
+}
+
+export interface HotspotPoint {
+  latitude: number;
+  longitude: number;
+  category: string;
+  count: number;
+}
+
+export interface DatasetInfo {
+  name: string;
+  path: string;
+  rows: number;
+  columns: number;
+  date_range: string;
+  accident_categories_covered: string[];
+  size_mb: number;
+  status: string;
+}
+
+export interface ReportSummary {
+  filename: string;
+  target_column: string | null;
+  experiment_id: string | null;
+  generated_at: string;
+  size_kb: number;
+}
+
+export interface DashboardSummary {
+  total_accidents: number;
+  total_incidents: number;
+  active_datasets: number;
+  models_trained: number;
+  best_model: string | null;
+  best_accuracy: number | null;
+  open_recommendations: number;
+  high_risk_categories: string[];
+  category_breakdown: Record<string, number>;
+  monthly_trend: { year: number; month: number; count: number }[];
+  flight_phase_breakdown: Record<string, number>;
+  weather_breakdown: Record<string, number>;
 }

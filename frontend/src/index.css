@@ -1,14 +1,59 @@
+/* Dark is the platform's primary identity (enterprise command-center
+   aesthetic, matching Palantir Foundry / Airbus Skywise) -- it is the
+   unconditional default, not conditioned on OS preference. Light mode
+   is available as an explicit opt-in via the theme toggle
+   (data-theme="light"), for accessibility/user preference. */
+
 :root {
+  color-scheme: dark;
+
+  --surface-0: #0a0a0a;
+  --surface-1: #131313;
+  --surface-2: #0d0d0d;
+  --surface-raised: #1a1a1a;
+  --text-primary: #ffffff;
+  --text-secondary: #c3c2b7;
+  --text-muted: #83817a;
+  --gridline: #2a2a28;
+  --baseline: #38372f;
+  --border: rgba(255, 255, 255, 0.08);
+  --border-strong: rgba(255, 255, 255, 0.14);
+
+  --series-cfit: #3987e5;
+  --series-loci: #d95926;
+  --series-runway: #199e70;
+
+  --seq-450: #3987e5;
+  --seq-200: #184f95;
+
+  --diverge-pos: #3987e5;
+  --diverge-neg: #e66767;
+
+  --status-good: #0ca30c;
+  --status-warning: #fab219;
+  --status-serious: #ec835a;
+  --status-critical: #d03b3b;
+
+  --accent-glow: rgba(57, 135, 229, 0.35);
+
+  --sans: system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --mono: ui-monospace, 'SF Mono', Consolas, monospace;
+}
+
+:root[data-theme='light'] {
   color-scheme: light;
 
+  --surface-0: #f2f1ee;
   --surface-1: #fcfcfb;
   --surface-2: #f9f9f7;
+  --surface-raised: #ffffff;
   --text-primary: #0b0b0b;
   --text-secondary: #52514e;
   --text-muted: #898781;
   --gridline: #e1e0d9;
   --baseline: #c3c2b7;
   --border: rgba(11, 11, 11, 0.1);
+  --border-strong: rgba(11, 11, 11, 0.18);
 
   --series-cfit: #2a78d6;
   --series-loci: #eb6834;
@@ -20,65 +65,7 @@
   --diverge-pos: #2a78d6;
   --diverge-neg: #e34948;
 
-  --status-good: #0ca30c;
-  --status-warning: #fab219;
-  --status-serious: #ec835a;
-  --status-critical: #d03b3b;
-
-  --sans: system-ui, -apple-system, 'Segoe UI', sans-serif;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root:where(:not([data-theme='light'])) {
-    color-scheme: dark;
-
-    --surface-1: #1a1a19;
-    --surface-2: #0d0d0d;
-    --text-primary: #ffffff;
-    --text-secondary: #c3c2b7;
-    --text-muted: #898781;
-    --gridline: #2c2c2a;
-    --baseline: #383835;
-    --border: rgba(255, 255, 255, 0.1);
-
-    --series-cfit: #3987e5;
-    --series-loci: #d95926;
-    --series-runway: #199e70;
-
-    --seq-450: #3987e5;
-    --seq-200: #184f95;
-
-    --diverge-pos: #3987e5;
-    --diverge-neg: #e66767;
-
-    --status-good: #0ca30c;
-    --status-warning: #fab219;
-    --status-serious: #ec835a;
-    --status-critical: #d03b3b;
-  }
-}
-
-:root[data-theme='dark'] {
-  color-scheme: dark;
-
-  --surface-1: #1a1a19;
-  --surface-2: #0d0d0d;
-  --text-primary: #ffffff;
-  --text-secondary: #c3c2b7;
-  --text-muted: #898781;
-  --gridline: #2c2c2a;
-  --baseline: #383835;
-  --border: rgba(255, 255, 255, 0.1);
-
-  --series-cfit: #3987e5;
-  --series-loci: #d95926;
-  --series-runway: #199e70;
-
-  --seq-450: #3987e5;
-  --seq-200: #184f95;
-
-  --diverge-pos: #3987e5;
-  --diverge-neg: #e66767;
+  --accent-glow: rgba(42, 120, 214, 0.25);
 }
 
 * {
@@ -94,10 +81,11 @@ body,
 body {
   margin: 0;
   font-family: var(--sans);
-  background: var(--surface-2);
+  background: var(--surface-0);
   color: var(--text-primary);
-  font-size: 15px;
+  font-size: 14px;
   line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
 }
 
 h1,
@@ -110,19 +98,19 @@ h3 {
 }
 
 h1 {
-  font-size: 28px;
+  font-size: 24px;
   letter-spacing: -0.3px;
 }
 
 h2 {
-  font-size: 18px;
+  font-size: 16px;
 }
 
 h3 {
-  font-size: 14px;
+  font-size: 12px;
   color: var(--text-secondary);
   text-transform: uppercase;
-  letter-spacing: 0.4px;
+  letter-spacing: 0.5px;
   font-weight: 600;
 }
 
@@ -142,7 +130,7 @@ a:hover {
 
 button {
   font-family: var(--sans);
-  font-size: 14px;
+  font-size: 13px;
   cursor: pointer;
 }
 
@@ -154,7 +142,7 @@ table {
 th,
 td {
   text-align: left;
-  padding: 8px 10px;
+  padding: 9px 12px;
   border-bottom: 1px solid var(--gridline);
   font-size: 13px;
 }
@@ -163,10 +151,25 @@ th {
   color: var(--text-muted);
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.3px;
-  font-size: 11px;
+  letter-spacing: 0.4px;
+  font-size: 10px;
 }
 
 .tabular {
   font-variant-numeric: tabular-nums;
+  font-family: var(--mono);
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: 6px;
 }

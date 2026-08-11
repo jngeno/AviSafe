@@ -8,11 +8,12 @@ pass in the Session they already have from the get_db dependency.
 
 from __future__ import annotations
 
+from datetime import date
 from pathlib import Path
 from typing import Any
 
 import pandas as pd
-from sqlalchemy import select
+from sqlalchemy import or_, select
 from sqlalchemy.orm import Session, selectinload
 
 from src.models.experiment import Experiment as ExperimentMeta
@@ -78,6 +79,9 @@ class ExperimentRepository:
                     evidence=[
                         item.strip() for item in row["Evidence"].split(",")
                     ],
+                    icao_reference=row.get("ICAO Reference", "") or "",
+                    hfacs_classification=row.get("HFACS Classification", "") or "",
+                    swiss_cheese_layer=row.get("Swiss Cheese Layer", "") or "",
                 )
             )
 
@@ -250,6 +254,81 @@ class PredictionRepository:
             .limit(limit)
         )
         return list(db.execute(stmt).scalars().all())
+
+
+class RecommendationRepository:
+    """
+    Read/filter/workflow operations for safety recommendations across
+    all experiments -- backs the Safety Recommendation Centre.
+    """
+
+    @staticmethod
+    def list(
+        db: Session,
+        *,
+        category: str | None = None,
+        priority: str | None = None,
+        status: str | None = None,
+        search: str | None = None,
+        limit: int = 200,
+    ) -> list[models.SafetyRecommendationRecord]:
+
+        stmt = select(models.SafetyRecommendationRecord).order_by(
+            models.SafetyRecommendationRecord.id.desc()
+        )
+
+        if category:
+            stmt = stmt.where(models.SafetyRecommendationRecord.category == category)
+
+        if priority:
+            stmt = stmt.where(models.SafetyRecommendationRecord.priority == priority)
+
+        if status:
+            stmt = stmt.where(models.SafetyRecommendationRecord.status == status)
+
+        if search:
+            pattern = f"%{search}%"
+            stmt = stmt.where(
+                or_(
+                    models.SafetyRecommendationRecord.recommendation.ilike(pattern),
+                    models.SafetyRecommendationRecord.stakeholder.ilike(pattern),
+                    models.SafetyRecommendationRecord.icao_reference.ilike(pattern),
+                )
+            )
+
+        stmt = stmt.limit(limit)
+
+        return list(db.execute(stmt).scalars().all())
+
+    @staticmethod
+    def get(
+        db: Session, recommendation_id: int
+    ) -> models.SafetyRecommendationRecord | None:
+        return db.get(models.SafetyRecommendationRecord, recommendation_id)
+
+    @staticmethod
+    def update_workflow(
+        db: Session,
+        record: models.SafetyRecommendationRecord,
+        *,
+        status: str | None = None,
+        assigned_officer: str | None = None,
+        due_date: date | None = None,
+    ) -> models.SafetyRecommendationRecord:
+
+        if status is not None:
+            record.status = status
+
+        if assigned_officer is not None:
+            record.assigned_officer = assigned_officer
+
+        if due_date is not None:
+            record.due_date = due_date
+
+        db.commit()
+        db.refresh(record)
+
+        return record
 
 
 def _json_safe(value: Any) -> Any:

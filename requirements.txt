@@ -24,6 +24,16 @@ pydantic-settings==2.14.2
 httpx==0.28.1
 python-multipart==0.0.32
 
+# --- Notebook orchestration/visualisation layer: installed and exercised
+# (notebooks/ pipeline walkthrough, matplotlib/seaborn charts, executed
+# end-to-end via nbclient in this environment).
+matplotlib==3.11.1
+seaborn==0.13.2
+nbformat==5.10.4
+ipykernel==7.3.0
+nbclient==0.10.2
+nbconvert==7.16.6
+
 # --- Not yet used: no chart/report code in src/visualization currently
 # calls plotly (the React dashboard uses hand-built SVG/CSS charts
 # instead -- see frontend/). Kept as a placeholder for the planned

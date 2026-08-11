@@ -1,10 +1,17 @@
 import axios from 'axios';
 import type {
+  AircraftAnalytics,
   BatchPredictionResponse,
+  DashboardSummary,
+  DatasetInfo,
   ExperimentDetail,
   ExperimentSummary,
+  HotspotPoint,
   PredictionRequest,
   PredictionResponse,
+  Recommendation,
+  RecommendationUpdate,
+  ReportSummary,
   TrainingJob,
   TrainingJobCreate,
 } from './types';
@@ -64,4 +71,56 @@ export async function createBatchPredictions(
     headers: { 'Content-Type': 'multipart/form-data' },
   });
   return data;
+}
+
+export async function listRecommendations(params?: {
+  category?: string;
+  priority?: string;
+  status?: string;
+  search?: string;
+  limit?: number;
+}): Promise<Recommendation[]> {
+  const { data } = await api.get<Recommendation[]>('/recommendations', { params });
+  return data;
+}
+
+export async function updateRecommendation(
+  id: number,
+  payload: RecommendationUpdate,
+): Promise<Recommendation> {
+  const { data } = await api.patch<Recommendation>(`/recommendations/${id}`, payload);
+  return data;
+}
+
+export async function getDashboardSummary(): Promise<DashboardSummary> {
+  const { data } = await api.get<DashboardSummary>('/analytics/dashboard');
+  return data;
+}
+
+export async function getAircraftAnalytics(limit?: number): Promise<AircraftAnalytics[]> {
+  const { data } = await api.get<AircraftAnalytics[]>('/analytics/aircraft', {
+    params: limit ? { limit } : undefined,
+  });
+  return data;
+}
+
+export async function getHotspots(category?: string): Promise<HotspotPoint[]> {
+  const { data } = await api.get<HotspotPoint[]>('/analytics/hotspots', {
+    params: category ? { category } : undefined,
+  });
+  return data;
+}
+
+export async function listDatasets(): Promise<DatasetInfo[]> {
+  const { data } = await api.get<DatasetInfo[]>('/datasets');
+  return data;
+}
+
+export async function listReports(): Promise<ReportSummary[]> {
+  const { data } = await api.get<ReportSummary[]>('/reports');
+  return data;
+}
+
+export function reportDownloadUrl(filename: string): string {
+  return `${baseURL}/reports/${encodeURIComponent(filename)}`;
 }

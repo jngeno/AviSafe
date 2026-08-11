@@ -47,6 +47,7 @@ from ..data.feature_engineering import FeatureEngineer
 from ..data.label_engineering import AccidentCategoryLabeler
 from ..data.preprocessing import Preprocessor
 from ..data.risk_engineering import RiskEngineer
+from ..explainability.causal_pattern_map import CausalPatternMapBuilder
 from ..explainability.feature_importance import FeatureImportanceAnalyzer
 from ..explainability.lime_explainer import LIMEExplainer
 from ..explainability.pattern_discovery import PatternDiscovery
@@ -146,11 +147,15 @@ _PARAMETER_GRIDS: dict[str, dict[str, list]] = {
         "max_features": ["sqrt", "log2"],
     },
     "xgboost": {
-        "n_estimators": [200, 300, 500],
-        "max_depth": [3, 4, 6, 8],
-        "learning_rate": [0.01, 0.05, 0.1, 0.2],
-        "subsample": [0.7, 0.85, 1.0],
-        "colsample_bytree": [0.7, 0.85, 1.0],
+        "n_estimators": [200, 300, 400, 500, 700, 900],
+        "max_depth": [3, 4, 5, 6, 8, 10],
+        "learning_rate": [0.01, 0.03, 0.05, 0.08, 0.1, 0.15, 0.2],
+        "subsample": [0.6, 0.7, 0.8, 0.85, 0.9, 1.0],
+        "colsample_bytree": [0.6, 0.7, 0.8, 0.85, 0.9, 1.0],
+        "min_child_weight": [1, 2, 3, 5, 7],
+        "gamma": [0, 0.1, 0.25, 0.5, 1.0],
+        "reg_alpha": [0, 0.01, 0.1, 0.5, 1.0],
+        "reg_lambda": [0.5, 1.0, 1.5, 2.0, 3.0],
     },
     "lightgbm": {
         "n_estimators": [200, 300, 500],
@@ -165,6 +170,14 @@ _PARAMETER_GRIDS: dict[str, dict[str, list]] = {
 }
 
 _TUNING_ITERATIONS = 15
+
+# XGBoost has consistently been the best-performing candidate on this
+# dataset and now has a substantially wider search space (regularization
+# terms added above) to match -- give it more RandomizedSearchCV draws to
+# actually explore that space, without slowing down every other candidate.
+_TUNING_ITERATIONS_OVERRIDE: dict[str, int] = {
+    "xgboost": 60,
+}
 
 _TUNING_CV_FOLDS = 5
 
@@ -185,6 +198,8 @@ class PipelineResults:
     feature_importance: pd.DataFrame
 
     patterns: pd.DataFrame
+
+    causal_pattern_map: pd.DataFrame
 
     recommendations: pd.DataFrame
 
@@ -230,6 +245,8 @@ class TrainingPipeline:
         self.importance = FeatureImportanceAnalyzer()
 
         self.patterns = PatternDiscovery()
+
+        self.causal_pattern_map = CausalPatternMapBuilder()
 
         self.recommender = RecommendationEngine()
 
@@ -430,7 +447,7 @@ class TrainingPipeline:
                 method="random",
                 cv=_TUNING_CV_FOLDS,
                 scoring="f1_weighted",
-                n_iter=_TUNING_ITERATIONS,
+                n_iter=_TUNING_ITERATIONS_OVERRIDE.get(name, _TUNING_ITERATIONS),
                 sample_weight=sample_weight,
             )
 
@@ -539,6 +556,19 @@ class TrainingPipeline:
 
         pattern_table = self.patterns.to_dataframe(discovered)
 
+        self.logger.info("Synthesising SHAP + LIME causal pattern map")
+
+        unified_causal_patterns = self.causal_pattern_map.build(
+            discovered,
+            self.lime,
+            explain_sample,
+            pattern_labels,
+        )
+
+        causal_pattern_map_table = self.causal_pattern_map.to_dataframe(
+            unified_causal_patterns
+        )
+
         recommendations = self.recommender.generate(discovered)
 
         recommendation_table = self.recommender.to_dataframe(recommendations)
@@ -551,6 +581,7 @@ class TrainingPipeline:
             model_path=model_directory,
             feature_importance=importance.rankings,
             patterns=pattern_table,
+            causal_pattern_map=causal_pattern_map_table,
             recommendations=recommendation_table,
             experiment=experiment,
             categorical_encodings=categorical_encodings,
@@ -592,10 +623,25 @@ if __name__ == "__main__":
 
     print(results.patterns.to_string(index=False))
 
+    print("\nUnified SHAP + LIME causal pattern map:")
+
+    print(results.causal_pattern_map.to_string(index=False))
+
     print("\nRecommendations:")
 
     print(results.recommendations.to_string(index=False))
 
     print("\nModel saved to:", results.model_path)
+
+    from ..explainability.report_generator import SafetyReportGenerator
+
+    report_path = (
+        Path("reports")
+        / f"safety_report_{results.experiment.target_column}_{results.experiment.experiment_id}.md"
+    )
+
+    SafetyReportGenerator().save(results, report_path)
+
+    print("Regulator-ready safety report saved to:", report_path)
 
     sys.exit(0)
