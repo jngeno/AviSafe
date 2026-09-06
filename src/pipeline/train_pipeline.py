@@ -3,6 +3,7 @@ End-to-end training pipeline for AviSafe.
 
 Coordinates the complete machine learning workflow:
     1. Load dataset
+    1b. Restrict to the most recent RECENT_YEARS_WINDOW years of data
     2. Validate
     3. Preprocess
     4. Feature engineering
@@ -30,6 +31,11 @@ Two target modes are supported:
   none of the three categories are dropped -- this mode trains only on the
   ~10% of accidents that clearly fall into one of the three ICAO/IATA
   high-risk categories, matching the proposal's stated scope.
+
+Training data is additionally scoped to the most recent ``RECENT_YEARS_WINDOW``
+years present in the source dataset (see step 1b) -- older accidents reflect
+retired aircraft types, avionics, and regulatory environments that are a
+weaker match for present-day operational risk.
 """
 
 from __future__ import annotations
@@ -117,15 +123,28 @@ TARGET_COLUMN = "Fatal_Accident"
 
 ACCIDENT_CATEGORY_TARGET = "Accident_Category"
 
-# SVM is excluded from the default candidate set: SVC scales poorly
-# (roughly quadratic in sample count) and is impractically slow on
-# ~88k rows compared to the tree ensembles and logistic regression.
+# Training is scoped to the most recent N years present in the source
+# dataset, not the current calendar year -- data/NTSB.csv ends in 2022, so
+# anchoring to "today" would silently select zero rows. Older accidents
+# reflect retired aircraft types, avionics, and regulatory environments
+# that are a weaker match for present-day operational risk.
+#
+# 33 (1990-2022), not a narrower recent-years window: the Accident_Category
+# narrative-keyword match rate rises steadily with recency (5.7% in the
+# 1980s vs 14.9% in the 2020s -- a *coverage* effect, older narratives are
+# less detailed, not necessarily a quality problem with the matches that do
+# land), so a 7-year window left only 1,781 matched rows and just 74 CFIT
+# records. 1990-2022 recovers 465 of the 585 CFIT records that exist in the
+# entire 1948-2022 history (79%) and 6,922 matched rows total, while still
+# excluding the noisiest, least aircraft/regulatory-relevant pre-1990 era.
+RECENT_YEARS_WINDOW = 33
+
 DEFAULT_MODEL_CANDIDATES = [
     "random_forest",
     "extra_trees",
     "xgboost",
     "lightgbm",
-    "logistic_regression",
+    "svm",
 ]
 
 # Randomized-search spaces per candidate model. Kept deliberately modest
@@ -163,9 +182,13 @@ _PARAMETER_GRIDS: dict[str, dict[str, list]] = {
         "num_leaves": [15, 31, 63],
         "max_depth": [-1, 5, 10],
     },
-    "logistic_regression": {
-        "C": [0.01, 0.1, 1.0, 10.0, 100.0],
-        "max_iter": [2000],
+    "svm": {
+        # kernel is fixed to "rbf" (see registry.py's svm default) rather
+        # than searched -- "linear" combined with unscaled features and
+        # high C makes libsvm's SMO solver converge extremely slowly,
+        # which made tuning impractically slow in practice.
+        "C": [0.1, 1.0, 10.0, 100.0],
+        "gamma": ["scale", "auto"],
     },
 }
 
@@ -250,6 +273,37 @@ class TrainingPipeline:
 
         self.recommender = RecommendationEngine()
 
+    def _restrict_to_recent_years(
+        self,
+        dataframe: pd.DataFrame,
+        years: int = RECENT_YEARS_WINDOW,
+    ) -> pd.DataFrame:
+        """
+        Keep only the most recent `years` of records, anchored to the
+        dataset's own latest Event Year (not the current calendar date).
+        """
+
+        max_year = int(dataframe["Event Year"].max())
+
+        min_year = max_year - years + 1
+
+        before = len(dataframe)
+
+        dataframe = dataframe[
+            dataframe["Event Year"] >= min_year
+        ].reset_index(drop=True)
+
+        self.logger.info(
+            "Restricted to Event Year %d-%d: kept %d of %d rows (%.1f%%)",
+            min_year,
+            max_year,
+            len(dataframe),
+            before,
+            100 * len(dataframe) / before,
+        )
+
+        return dataframe
+
     def _build_feature_matrix(
         self,
         dataframe: pd.DataFrame,
@@ -312,6 +366,7 @@ class TrainingPipeline:
         target_column: str = TARGET_COLUMN,
         model_candidates: list[str] | None = None,
         models_dir: str | Path = Path("models"),
+        recent_years: int | None = RECENT_YEARS_WINDOW,
     ) -> PipelineResults:
 
         model_candidates = model_candidates or DEFAULT_MODEL_CANDIDATES
@@ -321,6 +376,9 @@ class TrainingPipeline:
         self.logger.info("Loading dataset")
 
         dataframe = self.loader.load(Path(csv_path))
+
+        if recent_years is not None:
+            dataframe = self._restrict_to_recent_years(dataframe, recent_years)
 
         validation = self.validator.validate(
             dataframe,

@@ -136,8 +136,8 @@ class SafetyReportGenerator:
             "1. Structured NTSB accident data was cleaned, feature-engineered, and enriched with "
             "aviation-specific risk indices (weather, flight-phase, CFIT, and runway-excursion risk).\n"
             f"2. {note}\n"
-            "3. Five candidate classifiers (Random Forest, Extra Trees, XGBoost, LightGBM, Logistic "
-            "Regression) were tuned via class-balanced, cross-validated randomized search; the best "
+            "3. Five candidate classifiers (Random Forest, Extra Trees, XGBoost, LightGBM, SVM) "
+            "were tuned via class-balanced, cross-validated randomized search; the best "
             "performer by weighted F1 was selected and re-evaluated once on a held-out test split.\n"
             "4. Global feature importance was computed via SHAP TreeExplainer; local, per-record "
             "explanations were independently computed via LIME. Per-category patterns from each "
@@ -166,7 +166,7 @@ class SafetyReportGenerator:
         ]
 
         table = "\n".join(
-            f"| {name} | {value:.3f} |" if isinstance(value, (int, float)) else f"| {name} | — |"
+            f"| {name} | {value:.3f} |" if isinstance(value, (int, float)) else f"| {name} | - |"
             for name, value in rows
         )
 
@@ -228,7 +228,7 @@ class SafetyReportGenerator:
 
         for _, row in df.iterrows():
 
-            lines.append(f"### {row['Category']} — {row['Priority']} priority\n")
+            lines.append(f"### {row['Category']} - {row['Priority']} priority\n")
             lines.append(f"**Recommendation:** {row['Recommendation']}\n")
             lines.append(f"**Responsible stakeholder:** {row['Stakeholder']}\n")
             lines.append(f"**Confidence:** {row['Confidence']:.2f}\n")

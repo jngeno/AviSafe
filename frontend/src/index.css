@@ -1,71 +1,116 @@
-/* Dark is the platform's primary identity (enterprise command-center
-   aesthetic, matching Palantir Foundry / Airbus Skywise) -- it is the
-   unconditional default, not conditioned on OS preference. Light mode
-   is available as an explicit opt-in via the theme toggle
-   (data-theme="light"), for accessibility/user preference. */
+/* =========================================================================
+   AVISAFE THEME & DESIGN SYSTEM
+   Deep Aerospace Navy & High-Contrast Explainable AI Palette
+   ========================================================================= */
 
+/* Product palette (AviSafe product spec, section 5): primary #003366,
+   secondary #00897B, dark bg #07111F, dark cards #0D1B2A, dark border
+   #1B344D, light bg #F4F6F8, light text #172B3A, muted text #6B7C8F.
+   Semantic: green=low risk, teal=info, amber=moderate risk, red=high/
+   critical risk -- kept distinct from the CFIT/LOC-I/Runway category
+   colors below so severity and category are never visually conflated. */
 :root {
   color-scheme: dark;
 
-  --surface-0: #0a0a0a;
-  --surface-1: #131313;
-  --surface-2: #0d0d0d;
-  --surface-raised: #1a1a1a;
-  --text-primary: #ffffff;
-  --text-secondary: #c3c2b7;
-  --text-muted: #83817a;
-  --gridline: #2a2a28;
-  --baseline: #38372f;
-  --border: rgba(255, 255, 255, 0.08);
-  --border-strong: rgba(255, 255, 255, 0.14);
+  /* Surfaces */
+  --surface-0: #07111f;
+  --surface-1: #0d1b2a;
+  --surface-2: #122338;
+  --surface-3: #182e49;
+  --surface-raised: #0f1f33;
 
-  --series-cfit: #3987e5;
-  --series-loci: #d95926;
-  --series-runway: #199e70;
+  /* Text Typography */
+  --text-primary: #eaf1f8;
+  --text-secondary: #c3d2e0;
+  --text-muted: #6b7c8f;
 
-  --seq-450: #3987e5;
-  --seq-200: #184f95;
+  /* Borders & Grids */
+  --gridline: rgba(0, 137, 123, 0.14);
+  --baseline: rgba(0, 137, 123, 0.24);
+  --border: #1b344d;
+  --border-strong: #274a6b;
 
-  --diverge-pos: #3987e5;
-  --diverge-neg: #e66767;
+  /* Brand Accents */
+  --brand-primary: #003366;
+  --brand-accent: #00897b;
+  --brand-secondary: #26a69a;
 
-  --status-good: #0ca30c;
-  --status-warning: #fab219;
-  --status-serious: #ec835a;
-  --status-critical: #d03b3b;
+  /* Accident Categories (ICAO High-Risk) -- distinct from semantic
+     risk/status colors above, never reused for severity */
+  --series-cfit: #f59e0b;       /* Amber/Gold: Terrain Hazard */
+  --series-loci: #e0457b;       /* Magenta/Coral: Aerodynamic Stall */
+  --series-runway: #4f8fd6;     /* Blue: Surface / Runway */
 
-  --accent-glow: rgba(57, 135, 229, 0.35);
+  /* Sequential & Diverging Scales */
+  --seq-450: #00897b;
+  --seq-200: #0f2b48;
+  --diverge-pos: #00897b;
+  --diverge-neg: #f43f5e;
 
-  --sans: system-ui, -apple-system, 'Segoe UI', sans-serif;
-  --mono: ui-monospace, 'SF Mono', Consolas, monospace;
+  /* Status Colors */
+  --status-good: #10b981;
+  --status-warning: #f59e0b;
+  --status-serious: #f97316;
+  --status-critical: #ef4444;
+
+  --risk-low: var(--status-good);
+  --risk-moderate: var(--status-warning);
+  --risk-high: var(--status-serious);
+  --risk-critical: var(--status-critical);
+  --risk-info: var(--brand-secondary);
+
+  /* Elevation & Shadows */
+  --accent-glow: rgba(0, 137, 123, 0.25);
+  --shadow-card: 0 4px 20px -2px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.05);
+
+  --sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Consolas, monospace;
 }
 
 :root[data-theme='light'] {
   color-scheme: light;
 
-  --surface-0: #f2f1ee;
-  --surface-1: #fcfcfb;
-  --surface-2: #f9f9f7;
+  --surface-0: #f4f6f8;
+  --surface-1: #ffffff;
+  --surface-2: #eef1f4;
+  --surface-3: #e0e6ec;
   --surface-raised: #ffffff;
-  --text-primary: #0b0b0b;
-  --text-secondary: #52514e;
-  --text-muted: #898781;
-  --gridline: #e1e0d9;
-  --baseline: #c3c2b7;
-  --border: rgba(11, 11, 11, 0.1);
-  --border-strong: rgba(11, 11, 11, 0.18);
 
-  --series-cfit: #2a78d6;
-  --series-loci: #eb6834;
-  --series-runway: #1baf7a;
+  --text-primary: #172b3a;
+  --text-secondary: #3d5266;
+  --text-muted: #6b7c8f;
 
-  --seq-450: #2a78d6;
-  --seq-200: #9ec5f4;
+  --gridline: #e0e6ec;
+  --baseline: #cdd7e0;
+  --border: #d7dee5;
+  --border-strong: #b9c5d1;
 
-  --diverge-pos: #2a78d6;
-  --diverge-neg: #e34948;
+  --brand-primary: #003366;
+  --brand-accent: #00897b;
+  --brand-secondary: #00897b;
 
-  --accent-glow: rgba(42, 120, 214, 0.25);
+  --series-cfit: #b45309;
+  --series-loci: #be185d;
+  --series-runway: #1d4ed8;
+
+  --seq-450: #00897b;
+  --seq-200: #b2dfdb;
+  --diverge-pos: #00897b;
+  --diverge-neg: #e11d48;
+
+  --status-good: #059669;
+  --status-warning: #d97706;
+  --status-serious: #ea580c;
+  --status-critical: #dc2626;
+
+  --risk-low: var(--status-good);
+  --risk-moderate: var(--status-warning);
+  --risk-high: var(--status-serious);
+  --risk-critical: var(--status-critical);
+  --risk-info: var(--brand-secondary);
+
+  --accent-glow: rgba(0, 137, 123, 0.16);
+  --shadow-card: 0 1px 3px 0 rgba(0, 0, 0, 0.08), 0 1px 2px -1px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(0, 0, 0, 0.05);
 }
 
 * {
@@ -86,20 +131,27 @@ body {
   font-size: 14px;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+:root:not([data-theme='light']) body {
+  background-image: radial-gradient(ellipse 80% 50% at 50% -20%, rgba(0, 51, 102, 0.28), transparent);
 }
 
 h1,
 h2,
-h3 {
+h3,
+h4 {
   font-family: var(--sans);
   font-weight: 600;
   color: var(--text-primary);
   margin: 0 0 4px;
+  letter-spacing: -0.015em;
 }
 
 h1 {
   font-size: 24px;
-  letter-spacing: -0.3px;
+  letter-spacing: -0.025em;
 }
 
 h2 {
@@ -108,10 +160,10 @@ h2 {
 
 h3 {
   font-size: 12px;
-  color: var(--text-secondary);
+  color: var(--text-muted);
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  font-weight: 600;
+  letter-spacing: 0.06em;
+  font-weight: 700;
 }
 
 p {
@@ -120,56 +172,62 @@ p {
 }
 
 a {
-  color: var(--series-cfit);
+  color: var(--brand-accent);
   text-decoration: none;
+  transition: color 0.15s ease;
 }
 
 a:hover {
   text-decoration: underline;
 }
 
-button {
-  font-family: var(--sans);
-  font-size: 13px;
-  cursor: pointer;
-}
-
 table {
-  border-collapse: collapse;
   width: 100%;
-}
-
-th,
-td {
-  text-align: left;
-  padding: 9px 12px;
-  border-bottom: 1px solid var(--gridline);
+  border-collapse: collapse;
   font-size: 13px;
 }
 
 th {
-  color: var(--text-muted);
-  font-weight: 600;
+  text-align: left;
+  font-size: 11px;
   text-transform: uppercase;
-  letter-spacing: 0.4px;
-  font-size: 10px;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  font-weight: 700;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-primary);
+}
+
+tr:last-child td {
+  border-bottom: none;
 }
 
 .tabular {
-  font-variant-numeric: tabular-nums;
   font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
 }
 
+/* Custom Scrollbars */
 ::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
+  width: 7px;
+  height: 7px;
 }
 
 ::-webkit-scrollbar-track {
-  background: transparent;
+  background: var(--surface-0);
 }
 
 ::-webkit-scrollbar-thumb {
+  background: var(--surface-3);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
   background: var(--border-strong);
-  border-radius: 6px;
 }

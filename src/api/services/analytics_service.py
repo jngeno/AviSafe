@@ -62,55 +62,67 @@ def dashboard_facts() -> dict:
     has DB access this service deliberately does not.
     """
 
-    df = get_dataset()
+    try:
+        df = get_dataset()
 
-    total_accidents = int((df["Investigation_Type"] == "Accident").sum())
-    total_incidents = int((df["Investigation_Type"] == "Incident").sum())
+        total_accidents = int((df["Investigation_Type"] == "Accident").sum())
+        total_incidents = int((df["Investigation_Type"] == "Incident").sum())
 
-    labeled = df.dropna(subset=["Accident_Category"])
+        labeled = df.dropna(subset=["Accident_Category"])
 
-    category_breakdown = labeled["Accident_Category"].value_counts().to_dict()
+        category_breakdown = labeled["Accident_Category"].value_counts().to_dict()
 
-    monthly = (
-        df.dropna(subset=["Event_Year", "Event_Month"])
-        .groupby(["Event_Year", "Event_Month"])
-        .size()
-        .reset_index(name="count")
-        .sort_values(["Event_Year", "Event_Month"])
-        .tail(24)
-    )
+        monthly = (
+            df.dropna(subset=["Event_Year", "Event_Month"])
+            .groupby(["Event_Year", "Event_Month"])
+            .size()
+            .reset_index(name="count")
+            .sort_values(["Event_Year", "Event_Month"])
+            .tail(24)
+        )
 
-    monthly_trend = [
-        {
-            "year": int(row["Event_Year"]),
-            "month": int(row["Event_Month"]),
-            "count": int(row["count"]),
+        monthly_trend = [
+            {
+                "year": int(row["Event_Year"]),
+                "month": int(row["Event_Month"]),
+                "count": int(row["count"]),
+            }
+            for _, row in monthly.iterrows()
+        ]
+
+        flight_phase_breakdown = (
+            df["Broad_Phase_Of_Flight"].value_counts().head(10).to_dict()
+            if "Broad_Phase_Of_Flight" in df.columns
+            else {}
+        )
+
+        weather_breakdown = (
+            df["Weather_Condition"].value_counts().to_dict()
+            if "Weather_Condition" in df.columns
+            else {}
+        )
+
+        return {
+            "total_accidents": total_accidents,
+            "total_incidents": total_incidents,
+            "category_breakdown": {str(k): int(v) for k, v in category_breakdown.items()},
+            "monthly_trend": monthly_trend,
+            "flight_phase_breakdown": {
+                str(k): int(v) for k, v in flight_phase_breakdown.items()
+            },
+            "weather_breakdown": {str(k): int(v) for k, v in weather_breakdown.items()},
         }
-        for _, row in monthly.iterrows()
-    ]
-
-    flight_phase_breakdown = (
-        df["Broad_Phase_Of_Flight"].value_counts().head(10).to_dict()
-        if "Broad_Phase_Of_Flight" in df.columns
-        else {}
-    )
-
-    weather_breakdown = (
-        df["Weather_Condition"].value_counts().to_dict()
-        if "Weather_Condition" in df.columns
-        else {}
-    )
-
-    return {
-        "total_accidents": total_accidents,
-        "total_incidents": total_incidents,
-        "category_breakdown": {str(k): int(v) for k, v in category_breakdown.items()},
-        "monthly_trend": monthly_trend,
-        "flight_phase_breakdown": {
-            str(k): int(v) for k, v in flight_phase_breakdown.items()
-        },
-        "weather_breakdown": {str(k): int(v) for k, v in weather_breakdown.items()},
-    }
+    except Exception as e:
+        logger.warning("Dashboard facts computation failed: %s", e)
+        # Return empty/default data while processing continues
+        return {
+            "total_accidents": 0,
+            "total_incidents": 0,
+            "category_breakdown": {},
+            "monthly_trend": [],
+            "flight_phase_breakdown": {},
+            "weather_breakdown": {},
+        }
 
 
 def aircraft_analytics(limit: int = 30) -> list[dict]:

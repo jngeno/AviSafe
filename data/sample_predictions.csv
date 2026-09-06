@@ -1,9 +1,11 @@
-Country,Aircraft_Category,Amateur_Built,Number_Of_Engines,Engine_Type,Weather_Condition,Broad_Phase_Of_Flight,Longitude,Latitude,Number_Of_Seats,Event_Year,Event_Month,Event_Day,Event_Month_Name,Season
-United States,fixed wing single engine,No,1,reciprocating,IMC,Cruise,-104.9,39.7,4,2023,1,15,January,Winter
-United States,helicopter,No,1,turbo shaft,VMC,Landing,-80.2,25.8,6,2022,7,4,July,Summer
-United States,fixed wing single engine,No,1,reciprocating,VMC,Takeoff,-122.4,37.8,4,2021,6,20,June,Summer
-United States,fixed wing multi engine,No,2,turbo prop,IMC,Approach,-87.6,41.9,8,2020,12,3,December,Winter
-United States,fixed wing single engine,Yes,1,reciprocating,VMC,Maneuvering,-95.4,29.8,2,2019,3,22,March,Spring
-Canada,fixed wing single engine,No,1,reciprocating,UNK,Landing,-79.4,43.7,4,2022,9,10,September,Fall
-United States,glider,No,0,without engine,VMC,Cruise,-111.9,40.8,1,2023,5,5,May,Spring
-United States,fixed wing single engine,No,1,reciprocating,IMC,Descent,-118.2,34.1,4,2021,11,30,November,Fall
+Country,Aircraft_Category,Amateur_Built,Number_Of_Engines,Engine_Type,Weather_Condition,Broad_Phase_Of_Flight,Longitude,Latitude,Number_Of_Seats,Event_Year,Event_Month,Event_Day,Event_Month_Name,Season,Weather_Code,Weather_Risk,Flight_Phase_Risk,CFIT_Risk,Runway_Excursion_Risk
+United States,fixed wing single engine,No,1,reciprocating,IMC,Approach,-104.9,39.7,4,2020,1,15,January,Winter,1,5,5,10,7.5
+United States,fixed wing multi engine,No,2,turbo fan,IMC,Maneuvering,-96.8,32.8,150,2019,7,4,July,Summer,1,5,2,7,3.0
+United States,fixed wing multi engine,No,2,turbo prop,IMC,Landing,-87.6,41.9,70,2021,12,3,December,Winter,1,5,5,10,7.5
+United States,fixed wing single engine,No,1,reciprocating,VMC,Cruise,-122.4,37.8,4,2022,6,20,June,Summer,0,0,1,1,1.5
+United States,helicopter,No,1,turbo shaft,VMC,Landing,-80.2,25.8,6,2022,7,4,July,Summer,0,0,5,5,7.5
+Canada,fixed wing single engine,No,1,reciprocating,IMC,Takeoff,-79.4,43.7,4,2018,9,10,September,Fall,1,5,4,9,6.0
+United States,glider,No,0,without engine,VMC,Cruise,-111.9,40.8,1,2023,5,5,May,Spring,0,0,1,1,1.5
+United States,fixed wing single engine,No,1,reciprocating,UNK,Taxi,-95.4,29.8,2,2017,3,22,March,Spring,-1,2,1,3,1.5
+United States,fixed wing single engine,Yes,1,reciprocating,VMC,Maneuvering,-95.4,29.8,2,2016,3,22,March,Spring,0,0,2,2,3.0
+United States,fixed wing single engine,No,1,reciprocating,IMC,Descent,-118.2,34.1,4,2021,11,30,November,Fall,1,5,2,7,3.0
