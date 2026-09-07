@@ -9,7 +9,7 @@ build/
 dist/
 
 logs/*.log
-models/
+/models/
 outputs/
 
 data/raw/
