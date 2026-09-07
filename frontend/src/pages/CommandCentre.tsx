@@ -6,9 +6,18 @@ import {
   getAircraftAnalytics,
   getDashboardSummary,
   getHotspots,
+  listAirportCountries,
   listRecommendations,
+  searchAirports,
 } from '../api/client';
-import type { AircraftAnalytics, DashboardSummary, HotspotPoint, Recommendation } from '../api/types';
+import { DARK_BASEMAP_STYLE } from '../mapStyle';
+import type {
+  AircraftAnalytics,
+  CountryCount,
+  DashboardSummary,
+  HotspotPoint,
+  Recommendation,
+} from '../api/types';
 import { RiskGauge } from '../components/RiskGauge';
 import { PriorityBadge, WorkflowStatusBadge } from '../components/Badge';
 import { CATEGORY_ORDER, categoryColor } from '../components/categoryColor';
@@ -19,23 +28,6 @@ import {
   IconPlane,
   IconTrendUp,
 } from '../components/icons';
-
-const DARK_BASEMAP_STYLE = {
-  version: 8 as const,
-  sources: {
-    'carto-dark': {
-      type: 'raster' as const,
-      tiles: [
-        'https://a.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png',
-        'https://b.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png',
-        'https://c.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png',
-      ],
-      tileSize: 256,
-      attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
-    },
-  },
-  layers: [{ id: 'carto-dark-layer', type: 'raster' as const, source: 'carto-dark' }],
-};
 
 function hexToRgb(hex: string): string {
   const clean = hex.replace('#', '');
@@ -124,6 +116,8 @@ export function CommandCentre() {
   const [summary, setSummary] = useState<DashboardSummary | null>(null);
   const [aircraft, setAircraft] = useState<AircraftAnalytics[]>([]);
   const [openRecs, setOpenRecs] = useState<Recommendation[]>([]);
+  const [airportCountries, setAirportCountries] = useState<CountryCount[]>([]);
+  const [airportTotal, setAirportTotal] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -132,11 +126,15 @@ export function CommandCentre() {
       getDashboardSummary(),
       getAircraftAnalytics(5),
       listRecommendations({ status: 'Open', limit: 5 }),
+      listAirportCountries(),
+      searchAirports({ limit: 1 }),
     ])
-      .then(([s, a, r]) => {
+      .then(([s, a, r, countries, airports]) => {
         setSummary(s);
         setAircraft(a);
         setOpenRecs(r);
+        setAirportCountries(countries);
+        setAirportTotal(airports.total);
       })
       .catch((err) => setError(err?.message ?? 'Failed to load Command Centre data'))
       .finally(() => setLoading(false));
@@ -291,12 +289,38 @@ export function CommandCentre() {
 
       <div className="card-grid">
         <div className="card">
-          <h2>High-Risk Airports</h2>
-          <div className="empty-state">
-            Not available yet -- accident records aren&apos;t currently linked to a specific airport (see{' '}
-            <Link to="/airports">Airport Analytics</Link>), so per-airport risk scores can&apos;t be computed
-            honestly.
-          </div>
+          <h2>Airports</h2>
+          {airportTotal !== null && airportCountries.length > 0 ? (
+            <>
+              <p style={{ marginTop: 8, marginBottom: 10, fontSize: 13 }}>
+                <strong className="tabular">{airportTotal.toLocaleString()}</strong> airports tracked in the
+                reference directory, across <strong className="tabular">{airportCountries.length}</strong> countries.
+              </p>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Country</th>
+                    <th>Airports</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {airportCountries.slice(0, 5).map((c) => (
+                    <tr key={c.code}>
+                      <td>{c.code}</td>
+                      <td className="tabular">{c.count.toLocaleString()}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              <p className="text-muted" style={{ fontSize: 12, marginTop: 10 }}>
+                Identity and location data only - accident records aren&apos;t currently linked to a specific
+                airport, so per-airport <em>risk</em> scores aren&apos;t shown here or on{' '}
+                <Link to="/airports">Airport Analytics</Link>.
+              </p>
+            </>
+          ) : (
+            <div className="empty-state">No airport data available.</div>
+          )}
         </div>
 
         <div className="card">

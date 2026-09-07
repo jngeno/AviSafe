@@ -10,25 +10,9 @@ import type { Airport, CountryCount } from '../api/types';
 import { cssVar } from '../chartTheme';
 import { useTheme } from '../useTheme';
 import { SimpleBarChart } from '../components/SimpleBarChart';
+import { DARK_BASEMAP_STYLE } from '../mapStyle';
 
 const PAGE_SIZE = 25;
-
-const DARK_BASEMAP_STYLE = {
-  version: 8 as const,
-  sources: {
-    'carto-dark': {
-      type: 'raster' as const,
-      tiles: [
-        'https://a.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png',
-        'https://b.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png',
-        'https://c.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png',
-      ],
-      tileSize: 256,
-      attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
-    },
-  },
-  layers: [{ id: 'carto-dark-layer', type: 'raster' as const, source: 'carto-dark' }],
-};
 
 function typeLabel(type: string): string {
   return type

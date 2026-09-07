@@ -72,9 +72,6 @@ const AlertCentre = lazy(() =>
   import('./pages/AlertCentre').then((m) => ({ default: m.AlertCentre })),
 );
 const Reports = lazy(() => import('./pages/Reports').then((m) => ({ default: m.Reports })));
-const Settings = lazy(() =>
-  import('./pages/Settings').then((m) => ({ default: m.Settings })),
-);
 
 function RouteFallback() {
   return <div className="loading-state">Loading…</div>;
@@ -114,7 +111,6 @@ function App() {
                 <Route path="/safety-reporting" element={<SafetyReporting />} />
                 <Route path="/alerts" element={<AlertCentre />} />
                 <Route path="/reports" element={<Reports />} />
-                <Route path="/settings" element={<Settings />} />
               </Routes>
             </Suspense>
           </main>

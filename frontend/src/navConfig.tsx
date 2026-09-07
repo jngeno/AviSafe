@@ -13,7 +13,6 @@ import {
   IconMap,
   IconPlane,
   IconSearch,
-  IconSettings,
   IconTarget,
   IconTower,
   IconTrendUp,
@@ -49,6 +48,28 @@ export const NAV_SECTIONS: NavSection[] = [
     ],
   },
   {
+    label: 'Recommendations & Actions',
+    items: [
+      { to: '/recommendations', label: 'Safety Recommendation Centre', icon: <IconClipboard /> },
+      { to: '/safety-actions', label: 'Safety Actions', icon: <IconCheck /> },
+      { to: '/safety-reporting', label: 'Safety Reporting', icon: <IconFile /> },
+    ],
+  },
+  {
+    label: 'Analytics',
+    items: [
+      { to: '/airports', label: 'Airport Analytics', icon: <IconTower /> },
+      { to: '/aircraft', label: 'Aircraft Analytics', icon: <IconPlane /> },
+    ],
+  },
+  {
+    label: 'Reporting & Alerts',
+    items: [
+      { to: '/reports', label: 'Reports', icon: <IconFile /> },
+      { to: '/alerts', label: 'Alerts', icon: <IconBell /> },
+    ],
+  },
+  {
     label: 'Data & Models',
     items: [
       { to: '/datasets', label: 'Datasets', icon: <IconDatabase /> },
@@ -66,33 +87,7 @@ export const NAV_SECTIONS: NavSection[] = [
     ],
   },
   {
-    label: 'Analytics',
-    items: [
-      { to: '/airports', label: 'Airport Analytics', icon: <IconTower /> },
-      { to: '/aircraft', label: 'Aircraft Analytics', icon: <IconPlane /> },
-    ],
-  },
-  {
-    label: 'Recommendations & Actions',
-    items: [
-      { to: '/recommendations', label: 'Safety Recommendation Centre', icon: <IconClipboard /> },
-      { to: '/safety-actions', label: 'Safety Actions', icon: <IconCheck /> },
-      { to: '/safety-reporting', label: 'Safety Reporting', icon: <IconFile /> },
-    ],
-  },
-  {
-    label: 'Reporting & Alerts',
-    items: [
-      { to: '/reports', label: 'Reports', icon: <IconFile /> },
-      { to: '/alerts', label: 'Alerts', icon: <IconBell /> },
-    ],
-  },
-  {
     label: 'MSc Research',
     items: [{ to: '/presentation', label: 'Defense Presentation', icon: <IconFlask /> }],
-  },
-  {
-    label: 'System',
-    items: [{ to: '/settings', label: 'Settings', icon: <IconSettings /> }],
   },
 ];

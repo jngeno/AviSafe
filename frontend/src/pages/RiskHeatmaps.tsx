@@ -4,23 +4,7 @@ import 'maplibre-gl/dist/maplibre-gl.css';
 import { getHotspots } from '../api/client';
 import type { HotspotPoint } from '../api/types';
 import { CATEGORY_ORDER, categoryColor } from '../components/categoryColor';
-
-const DARK_BASEMAP_STYLE = {
-  version: 8 as const,
-  sources: {
-    'carto-dark': {
-      type: 'raster' as const,
-      tiles: [
-        'https://a.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png',
-        'https://b.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png',
-        'https://c.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png',
-      ],
-      tileSize: 256,
-      attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
-    },
-  },
-  layers: [{ id: 'carto-dark-layer', type: 'raster' as const, source: 'carto-dark' }],
-};
+import { DARK_BASEMAP_STYLE } from '../mapStyle';
 
 function hexToRgb(hex: string): string {
   const clean = hex.replace('#', '');
