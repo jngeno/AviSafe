@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Final
@@ -55,9 +56,14 @@ class Config:
         self.processed_data_dir = data_dir / "processed"
         self.external_data_dir = data_dir / "external"
 
-        self.models_dir = self.project_root / "models"
+        # Overridable via env var so a deployment can point these at a
+        # mounted persistent volume (e.g. Railway, which allows only one
+        # volume per service -- MODELS_DIR/REPORTS_DIR both live under
+        # that single mount there). Unset locally, so local dev is
+        # unaffected.
+        self.models_dir = Path(os.environ.get("MODELS_DIR", str(self.project_root / "models")))
 
-        self.reports_dir = self.project_root / "reports"
+        self.reports_dir = Path(os.environ.get("REPORTS_DIR", str(self.project_root / "reports")))
         self.figures_dir = self.reports_dir / "figures"
         self.metrics_dir = self.reports_dir / "metrics"
         self.exports_dir = self.reports_dir / "exports"
