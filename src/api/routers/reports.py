@@ -25,7 +25,7 @@ _FILENAME_RE = re.compile(r"^safety_report_(?:(?P<target>[A-Za-z_]+)_)?(?P<exper
 def list_reports():
 
     try:
-        reports_dir = Config().project_root / "reports"
+        reports_dir = Config().reports_dir
 
         if not reports_dir.exists():
             return []
@@ -56,7 +56,7 @@ def list_reports():
 def get_report(filename: str):
 
     try:
-        reports_dir = Config().project_root / "reports"
+        reports_dir = Config().reports_dir
 
         path = (reports_dir / filename).resolve()
 

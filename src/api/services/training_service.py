@@ -11,6 +11,7 @@ sent, long before a background training run finishes).
 
 from __future__ import annotations
 
+from src.core.config import config
 from src.core.logger import LoggerManager
 from src.database.base import SessionLocal
 from src.database.repositories import ExperimentRepository, TrainingJobRepository
@@ -47,6 +48,7 @@ def run_training_job(
             csv_path,
             target_column=target_column,
             model_candidates=model_candidates,
+            models_dir=config.models_dir,
         )
 
         experiment = ExperimentRepository.create_from_pipeline_results(db, results)

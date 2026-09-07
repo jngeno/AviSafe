@@ -24,6 +24,7 @@ from typing import Any
 import joblib
 import pandas as pd
 
+from src.core.config import config
 from src.core.logger import LoggerManager
 from src.database import models
 from src.database.repositories import PredictionRepository
@@ -125,7 +126,7 @@ def _load_model(experiment: models.Experiment) -> Any:
             raise PredictionError(f"Failed to load model at {base}: {exc}") from exc
 
     # 3) search for a matching folder under models/ that contains model.joblib
-    repo_models_dir = Path("models")
+    repo_models_dir = config.models_dir
     if repo_models_dir.exists():
         # try a folder that matches the experiment name
         name_slug = experiment.model_name.lower().replace(" ", "_")
