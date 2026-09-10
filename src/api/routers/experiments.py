@@ -24,7 +24,6 @@ def list_experiments(
     try:
         return ExperimentRepository.list(db, target_column=target_column, limit=limit)
     except Exception:
-        # Database unavailable - return empty list
         return []
 
 
@@ -43,7 +42,6 @@ def get_latest_experiment(
     except HTTPException:
         raise
     except Exception:
-        # Database unavailable
         raise HTTPException(status_code=404, detail="No experiments found")
 
 
@@ -59,5 +57,4 @@ def get_experiment(experiment_id: int, db: Session = Depends(get_db)):
     except HTTPException:
         raise
     except Exception:
-        # Database unavailable
         raise HTTPException(status_code=404, detail="Experiment not found")

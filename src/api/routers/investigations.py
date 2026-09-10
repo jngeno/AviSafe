@@ -28,7 +28,6 @@ def list_investigations(
             db, status=status, incident_id=incident_id, limit=limit
         )
     except Exception:
-        # Database unavailable - return empty list
         return []
 
 

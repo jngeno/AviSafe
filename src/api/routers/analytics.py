@@ -53,7 +53,6 @@ def dashboard_summary(db: Session = Depends(get_db)):
             .where(models.SafetyRecommendationRecord.status == "Open")
         ).scalar_one()
     except Exception:
-        # Database unavailable or not initialized - provide defaults
         models_trained = 0
         latest_experiment = None
         open_recommendations = 0

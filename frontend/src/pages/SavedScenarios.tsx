@@ -32,7 +32,7 @@ export function SavedScenarios() {
 
       {scenarios.length === 0 && (
         <div className="empty-state">
-          No saved scenarios yet — run a simulation and use &ldquo;Save scenario&rdquo; to keep it here.
+          No saved scenarios yet. Run a simulation and use &ldquo;Save scenario&rdquo; to keep it here.
         </div>
       )}
 

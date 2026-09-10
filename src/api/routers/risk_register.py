@@ -35,7 +35,6 @@ def list_risk_register(
             limit=limit,
         )
     except Exception:
-        # Database unavailable - return empty list
         return []
 
 

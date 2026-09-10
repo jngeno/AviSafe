@@ -38,7 +38,6 @@ def list_incidents(
             limit=limit,
         )
     except Exception:
-        # Database unavailable - return empty list
         return []
 
 

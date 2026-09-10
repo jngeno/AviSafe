@@ -145,10 +145,8 @@ def _load_model(experiment: models.Experiment) -> Any:
             try:
                 return joblib.load(p)
             except Exception:
-                # keep trying
                 continue
 
-    # If we get here, nothing was found
     raise PredictionError(f"Model artifact not found. Tried: {', '.join(str(p) for p in tried)}")
 
 

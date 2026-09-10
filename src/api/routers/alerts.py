@@ -53,7 +53,6 @@ def list_alerts(
             for a in alerts
         ]
     except Exception:
-        # Database unavailable - return empty list
         return []
 
 

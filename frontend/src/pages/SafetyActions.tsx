@@ -97,6 +97,7 @@ function AddActionForm({
             rows={3}
             value={form.description}
             onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
+            placeholder="Context, root cause, and what success looks like."
           />
         </div>
 

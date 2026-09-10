@@ -31,7 +31,6 @@ def list_safety_actions(
             db, status=status, priority=priority, owner=owner, search=search, limit=limit
         )
     except Exception:
-        # Database unavailable - return empty list
         return []
 
 

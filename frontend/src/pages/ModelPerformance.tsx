@@ -99,7 +99,7 @@ export function ModelPerformance() {
 
       {modelFamilyData.length > 1 && (
         <div className="card">
-          <h2>Average accuracy by model family{targetColumn ? ` — ${targetColumn}` : ''}</h2>
+          <h2>Average accuracy by model family{targetColumn ? ` (${targetColumn})` : ''}</h2>
           <p className="text-muted" style={{ fontSize: 12, marginTop: -2, marginBottom: 8 }}>
             Mean test accuracy across all runs of each algorithm ({modelFamilyData
               .map((m) => `${m.label}: ${m.runs} run${m.runs === 1 ? '' : 's'}`)

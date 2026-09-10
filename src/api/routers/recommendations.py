@@ -37,7 +37,6 @@ def list_recommendations(
             limit=limit,
         )
     except Exception:
-        # Database unavailable - return empty list
         return []
 
 
