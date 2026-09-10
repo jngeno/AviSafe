@@ -86,8 +86,4 @@ export const NAV_SECTIONS: NavSection[] = [
       { to: '/risk-heatmaps', label: 'Risk Heat Maps', icon: <IconMap /> },
     ],
   },
-  {
-    label: 'MSc Research',
-    items: [{ to: '/presentation', label: 'Defense Presentation', icon: <IconFlask /> }],
-  },
 ];

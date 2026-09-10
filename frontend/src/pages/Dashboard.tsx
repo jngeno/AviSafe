@@ -168,9 +168,6 @@ export function Dashboard() {
           </div>
 
           <div className="dashboard-hero-actions">
-            <Link to="/presentation" className="btn btn-presentation-hero">
-              Launch Dissertation Defense Deck (9 Slides) →
-            </Link>
             <Link to="/flight-risk-assessment" className="btn-secondary">
               Live Scenario Simulator
             </Link>

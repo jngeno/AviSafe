@@ -14,9 +14,6 @@ const CommandCentre = lazy(() =>
 const SavedScenarios = lazy(() =>
   import('./pages/SavedScenarios').then((m) => ({ default: m.SavedScenarios })),
 );
-const PresentationMode = lazy(() =>
-  import('./pages/PresentationMode').then((m) => ({ default: m.PresentationMode })),
-);
 const Datasets = lazy(() =>
   import('./pages/Datasets').then((m) => ({ default: m.Datasets })),
 );
@@ -91,7 +88,6 @@ function App() {
                 <Route path="/" element={<CommandCentre />} />
                 <Route path="/safety-intelligence" element={<Dashboard />} />
                 <Route path="/saved-scenarios" element={<SavedScenarios />} />
-                <Route path="/presentation" element={<PresentationMode />} />
                 <Route path="/datasets" element={<Datasets />} />
                 <Route path="/train" element={<TrainNew />} />
                 <Route path="/experiments" element={<Experiments />} />

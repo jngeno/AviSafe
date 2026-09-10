@@ -1,4 +1,4 @@
-import { Link, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { NAV_SECTIONS } from '../navConfig';
 import { IconMenu, IconMoon, IconSearch, IconSun } from './icons';
 import { useTheme } from '../useTheme';
@@ -45,15 +45,6 @@ export function TopBar() {
           <span>Search…</span>
           <kbd>Ctrl K</kbd>
         </button>
-        {location.pathname !== '/presentation' && (
-          <Link
-            to="/presentation"
-            className="btn-topbar-presentation"
-            title="Launch full-screen Thesis Defense Slide Deck"
-          >
-            Defense Presentation
-          </Link>
-        )}
         <button
           type="button"
           className="theme-toggle"
