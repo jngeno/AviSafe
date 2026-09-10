@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useMemo, useState } from 'react';
+import { Fragment, useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { createBatchPredictions, createPrediction, getExperiment, listExperiments } from '../api/client';
 import type {
@@ -188,11 +188,7 @@ const PRESET_CASE_STUDIES: CaseStudyPreset[] = [
 // Real what-if scenario analysis: lets the user change actual model
 // input features (the same ones the manual form uses -- nothing
 // invented) and re-runs a genuine second inference through the real
-// API, then compares the two real predictions side by side. This is
-// distinct from the "Presentation Demo" sandbox above/below it, which
-// perturbs the displayed probability with a cosmetic heuristic for
-// live-demo purposes and is labelled as such -- this panel makes an
-// actual second createPrediction() call.
+// API, then compares the two real predictions side by side.
 function ScenarioComparisonPanel({
   result,
   experiment,
@@ -401,34 +397,7 @@ function PredictionResult({
   latencyMs?: number | null;
   experiment?: ExperimentDetail | null;
 }) {
-  // Counterfactual What-If Perturbation state
-  const [weatherDelta, setWeatherDelta] = useState(0);
-  const [operationalDelta, setOperationalDelta] = useState(0);
   const [showTechnicalDetails, setShowTechnicalDetails] = useState(false);
-
-  const adjustedProbabilities = useMemo(() => {
-    if (weatherDelta === 0 && operationalDelta === 0) return result.probabilities;
-
-    const baseProb = result.probabilities[result.predicted_class] ?? 0.7;
-    const factor = 1 + (weatherDelta + operationalDelta) / 100;
-    const newTargetProb = Math.min(0.99, Math.max(0.05, baseProb * factor));
-    const remainder = Math.max(0, 1 - newTargetProb);
-
-    const otherClasses = Object.keys(result.probabilities).filter(
-      (c) => c !== result.predicted_class,
-    );
-    const split = otherClasses.length > 0 ? remainder / otherClasses.length : 0;
-
-    const adjusted: Record<string, number> = {};
-    for (const c of Object.keys(result.probabilities)) {
-      if (c === result.predicted_class) {
-        adjusted[c] = Number(newTargetProb.toFixed(2));
-      } else {
-        adjusted[c] = Number(split.toFixed(2));
-      }
-    }
-    return adjusted;
-  }, [result, weatherDelta, operationalDelta]);
 
   return (
     <>
@@ -467,7 +436,7 @@ function PredictionResult({
         <div>
           <h3>Class Probabilities</h3>
           <CategoryBarChart
-            data={Object.entries(adjustedProbabilities).map(([category, value]) => ({
+            data={Object.entries(result.probabilities).map(([category, value]) => ({
               category,
               value,
             }))}
@@ -568,79 +537,6 @@ function PredictionResult({
       </div>
 
       {!isFallback && experiment && <ScenarioComparisonPanel result={result} experiment={experiment} />}
-
-      {/* Interactive What-If Counterfactual Sandbox */}
-      <div className="whatif-sandbox-card">
-        <div className="whatif-sandbox-header">
-          <div>
-            <span className="badge badge--success">Presentation Demo Feature</span>
-            <h3 style={{ margin: '4px 0 2px' }}>Interactive &ldquo;What-If&rdquo; Sensitivity Sandbox</h3>
-            <p className="text-muted" style={{ margin: 0, fontSize: 13 }}>
-              Perturb environmental and operational risk factors in real time to demonstrate how targeted safety mitigations lower probability.
-            </p>
-          </div>
-          {(weatherDelta !== 0 || operationalDelta !== 0) && (
-            <button
-              type="button"
-              className="btn-secondary btn-small"
-              onClick={() => {
-                setWeatherDelta(0);
-                setOperationalDelta(0);
-              }}
-            >
-              Reset Sandbox
-            </button>
-          )}
-        </div>
-
-        <div className="card-grid" style={{ marginTop: 14 }}>
-          <div className="whatif-slider-box">
-            <div className="whatif-label-row">
-              <label htmlFor="predict-weather-slider">Environmental / Weather Risk Factor Mitigation</label>
-              <strong className="tabular" style={{ color: weatherDelta < 0 ? 'var(--status-success)' : weatherDelta > 0 ? 'var(--status-danger)' : undefined }}>
-                {weatherDelta > 0 ? `+${weatherDelta}%` : `${weatherDelta}%`}
-              </strong>
-            </div>
-            <input
-              id="predict-weather-slider"
-              type="range"
-              min="-60"
-              max="40"
-              value={weatherDelta}
-              onChange={(e) => setWeatherDelta(Number(e.target.value))}
-              className="whatif-slider"
-            />
-            <div className="whatif-ticks">
-              <span>Improve Weather (-60%)</span>
-              <span>Nominal (0%)</span>
-              <span>Adverse (+40%)</span>
-            </div>
-          </div>
-
-          <div className="whatif-slider-box">
-            <div className="whatif-label-row">
-              <label htmlFor="predict-ops-slider">Operational / Procedural Buffer Adjustment</label>
-              <strong className="tabular" style={{ color: operationalDelta < 0 ? 'var(--status-success)' : operationalDelta > 0 ? 'var(--status-danger)' : undefined }}>
-                {operationalDelta > 0 ? `+${operationalDelta}%` : `${operationalDelta}%`}
-              </strong>
-            </div>
-            <input
-              id="predict-ops-slider"
-              type="range"
-              min="-60"
-              max="40"
-              value={operationalDelta}
-              onChange={(e) => setOperationalDelta(Number(e.target.value))}
-              className="whatif-slider"
-            />
-            <div className="whatif-ticks">
-              <span>Stabilized SOP (-60%)</span>
-              <span>Nominal (0%)</span>
-              <span>Unstabilized (+40%)</span>
-            </div>
-          </div>
-        </div>
-      </div>
     </>
   );
 }

@@ -857,64 +857,6 @@ kbd {
   margin-bottom: 14px;
 }
 
-.whatif-sandbox-card {
-  margin-top: 20px;
-  background: color-mix(in srgb, var(--surface-2) 60%, var(--surface-1));
-  border: 1px dashed color-mix(in srgb, var(--brand-accent) 40%, var(--border));
-  border-radius: 8px;
-  padding: 16px;
-}
-
-.whatif-sandbox-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-
-.whatif-slider-box {
-  background: var(--surface-1);
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  padding: 12px 14px;
-}
-
-.whatif-label-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 8px;
-  font-size: 13px;
-  font-weight: 500;
-}
-
-.whatif-slider {
-  width: 100%;
-  height: 6px;
-  border-radius: 3px;
-  accent-color: var(--brand-accent);
-  cursor: pointer;
-}
-
-.whatif-ticks {
-  display: flex;
-  justify-content: space-between;
-  font-size: 10px;
-  color: var(--text-muted);
-  margin-top: 4px;
-}
-
-.whatif-summary-box {
-  margin-top: 14px;
-  padding: 10px 14px;
-  border-radius: 6px;
-  background: color-mix(in srgb, var(--brand-accent) 10%, var(--surface-1));
-  border: 1px solid color-mix(in srgb, var(--brand-accent) 25%, transparent);
-  font-size: 13px;
-  line-height: 1.5;
-}
-
 /* =========================================================================
    REASON'S SWISS CHEESE ACCIDENT CAUSATION MODEL
    ========================================================================= */

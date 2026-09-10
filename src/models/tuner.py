@@ -4,6 +4,7 @@ Hyperparameter tuning engine for AviSafe.
 
 from __future__ import annotations
 
+import os
 from dataclasses import dataclass
 from time import perf_counter
 from typing import Any
@@ -14,6 +15,15 @@ from sklearn.model_selection import GridSearchCV, RandomizedSearchCV
 from src.core.logger import LoggerManager
 
 from .registry import ModelRegistry
+
+# RandomizedSearchCV/GridSearchCV's own n_jobs=-1 spawns one joblib
+# worker process per host CPU (os.cpu_count() isn't cgroup-aware on
+# every platform), each holding its own copy of the training split --
+# fine on a full-memory dev machine, but enough to blow past a
+# memory-constrained deployment's limit well before any single fit
+# would. Overridable via TUNING_N_JOBS so a constrained host (e.g. a
+# 1GB Railway instance) can cap it without slowing down local dev.
+_TUNING_N_JOBS = int(os.environ.get("TUNING_N_JOBS", "-1"))
 
 
 @dataclass(slots=True)
@@ -114,7 +124,7 @@ class HyperparameterTuner:
                 param_grid=parameter_grid,
                 scoring=scoring,
                 cv=cv,
-                n_jobs=-1,
+                n_jobs=_TUNING_N_JOBS,
             )
 
         elif method == "random":
@@ -126,7 +136,7 @@ class HyperparameterTuner:
                 cv=cv,
                 n_iter=n_iter,
                 random_state=42,
-                n_jobs=-1,
+                n_jobs=_TUNING_N_JOBS,
             )
 
         else:
