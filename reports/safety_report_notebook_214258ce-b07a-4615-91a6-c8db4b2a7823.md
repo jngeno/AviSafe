@@ -3,7 +3,7 @@
 **Target category:** Accident_Category  
 **Model:** XGBoost  
 **Dataset:** NTSB.csv  
-**Generated:** 2026-08-04 16:49 UTC  
+**Generated:** 2026-08-11 12:14 UTC  
 **Experiment ID:** `214258ce-b07a-4615-91a6-c8db4b2a7823`
 
 ## Executive Summary
@@ -16,7 +16,7 @@ Explanations were cross-validated across two independent methods (SHAP and LIME)
 
 1. Structured NTSB accident data was cleaned, feature-engineered, and enriched with aviation-specific risk indices (weather, flight-phase, CFIT, and runway-excursion risk).
 2. Category labels were derived via rule-based keyword matching against NTSB accident narrative text (see src/data/label_engineering.py), not from an authoritative category field -- see Limitations.
-3. Five candidate classifiers (Random Forest, Extra Trees, XGBoost, LightGBM, Logistic Regression) were tuned via class-balanced, cross-validated randomized search; the best performer by weighted F1 was selected and re-evaluated once on a held-out test split.
+3. Five candidate classifiers (Random Forest, Extra Trees, XGBoost, LightGBM, SVM) were tuned via class-balanced, cross-validated randomized search; the best performer by weighted F1 was selected and re-evaluated once on a held-out test split.
 4. Global feature importance was computed via SHAP TreeExplainer; local, per-record explanations were independently computed via LIME. Per-category patterns from each method were compared, and features both methods flagged were promoted to a consensus set (see Causal Pattern Map below).
 5. Selected model configuration (non-default parameters only): objective=multi:softprob, colsample_bytree=0.6, enable_categorical=True, eval_metric=logloss, gamma=0, learning_rate=0.08, max_depth=3, min_child_weight=7, missing=nan, n_estimators=200, random_state=42, reg_alpha=0.01, reg_lambda=3.0, subsample=0.6.
 
@@ -63,7 +63,7 @@ For each accident category, the top contributing factors identified independentl
 
 ## Safety Recommendations
 
-### CFIT — Medium priority
+### CFIT - Medium priority
 
 **Recommendation:** Review approach phase SOPs and stabilized approach criteria.
 
@@ -73,7 +73,7 @@ For each accident category, the top contributing factors identified independentl
 
 **Evidence (SHAP-ranked features):** Broad_Phase_Of_Flight, Flight_Phase_Risk, Flight_Phase_Code, CFIT_Risk, Engine_Type
 
-### Runway Excursion — Medium priority
+### Runway Excursion - Medium priority
 
 **Recommendation:** Review landing performance calculations and stabilized approach policy.
 

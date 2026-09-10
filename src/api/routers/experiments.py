@@ -21,7 +21,10 @@ def list_experiments(
     limit: int = 50,
     db: Session = Depends(get_db),
 ) -> list:
-    return ExperimentRepository.list(db, target_column=target_column, limit=limit)
+    try:
+        return ExperimentRepository.list(db, target_column=target_column, limit=limit)
+    except Exception:
+        return []
 
 
 @router.get("/latest", response_model=schemas.ExperimentDetail)
@@ -29,19 +32,29 @@ def get_latest_experiment(
     target_column: str | None = None,
     db: Session = Depends(get_db),
 ):
-    experiment = ExperimentRepository.get_latest(db, target_column=target_column)
+    try:
+        experiment = ExperimentRepository.get_latest(db, target_column=target_column)
 
-    if experiment is None:
+        if experiment is None:
+            raise HTTPException(status_code=404, detail="No experiments found")
+
+        return experiment
+    except HTTPException:
+        raise
+    except Exception:
         raise HTTPException(status_code=404, detail="No experiments found")
-
-    return experiment
 
 
 @router.get("/{experiment_id}", response_model=schemas.ExperimentDetail)
 def get_experiment(experiment_id: int, db: Session = Depends(get_db)):
-    experiment = ExperimentRepository.get(db, experiment_id)
+    try:
+        experiment = ExperimentRepository.get(db, experiment_id)
 
-    if experiment is None:
+        if experiment is None:
+            raise HTTPException(status_code=404, detail="Experiment not found")
+
+        return experiment
+    except HTTPException:
+        raise
+    except Exception:
         raise HTTPException(status_code=404, detail="Experiment not found")
-
-    return experiment

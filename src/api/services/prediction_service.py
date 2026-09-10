@@ -10,10 +10,10 @@ Known simplification: the SHAP explainer is fit using the single input
 row as its own "background" reference. For tree ensembles (the usual
 winners here) this doesn't matter -- SHAPExplainer uses TreeExplainer
 with feature_perturbation="tree_path_dependent", which ignores the
-background dataset entirely. For a non-tree fallback model (e.g.
-Logistic Regression), a one-row background is a weaker reference than
-the real training set would give; this is an accepted tradeoff against
-persisting full training data per experiment.
+background dataset entirely. For a non-tree fallback model (e.g. SVM),
+a one-row background is a weaker reference than the real training set
+would give; this is an accepted tradeoff against persisting full
+training data per experiment.
 """
 
 from __future__ import annotations
@@ -24,6 +24,7 @@ from typing import Any
 import joblib
 import pandas as pd
 
+from src.core.config import config
 from src.core.logger import LoggerManager
 from src.database import models
 from src.database.repositories import PredictionRepository
@@ -66,22 +67,87 @@ def encode_features(
             row[name] = categorical_encodings[name].get(str(value), -1)
 
         else:
+            # Try to coerce numeric-like values into numbers. If the value is
+            # a non-empty string (likely an unencoded categorical) fall back
+            # to -1 so tree models treat it as an unknown category. Empty
+            # strings and missing values default to 0 (consistent with
+            # training-time handling when features were absent).
+            val = raw_features.get(name, 0)
 
-            row[name] = raw_features.get(name, 0)
+            if isinstance(val, (int, float)):
+                row[name] = val
+            else:
+                try:
+                    # Accept numeric strings like "0" or "3.14"
+                    row[name] = float(val)
+                except Exception:
+                    if val is None or (isinstance(val, str) and val.strip() == ""):
+                        row[name] = 0
+                    else:
+                        # Unknown categorical not present in stored encodings
+                        # - use -1 as a sentinel for 'unseen' which matches
+                        # the pipeline's handling of unexpected categories.
+                        row[name] = -1
 
     return pd.DataFrame([row], columns=feature_names)
 
 
 def _load_model(experiment: models.Experiment) -> Any:
+    """Load model with robust fallback logic.
 
-    model_file = Path(experiment.model_path) / "model.joblib"
+    Tries these locations in order:
+    1. <experiment.model_path>/model.joblib (expected behavior)
+    2. <experiment.model_path> if it's a file (direct path to joblib)
+    3. A matching subfolder under the repository's models/ directory that contains model.joblib
+    4. Any models/*/model.joblib as a final fallback
 
-    try:
-        return joblib.load(model_file)
-    except FileNotFoundError as exc:
-        raise PredictionError(
-            f"Model artifact not found at {model_file}"
-        ) from exc
+    Raises PredictionError listing attempted paths if none are found.
+    """
+
+    tried = []
+
+    base = Path(experiment.model_path)
+
+    # 1) directory + model.joblib
+    tried_path = base / "model.joblib"
+    tried.append(tried_path)
+    if tried_path.exists():
+        try:
+            return joblib.load(tried_path)
+        except Exception as exc:
+            raise PredictionError(f"Failed to load model at {tried_path}: {exc}") from exc
+
+    # 2) experiment.model_path directly (maybe it was stored as a file)
+    if base.exists() and base.is_file():
+        tried.append(base)
+        try:
+            return joblib.load(base)
+        except Exception as exc:
+            raise PredictionError(f"Failed to load model at {base}: {exc}") from exc
+
+    # 3) search for a matching folder under models/ that contains model.joblib
+    repo_models_dir = config.models_dir
+    if repo_models_dir.exists():
+        # try a folder that matches the experiment name
+        name_slug = experiment.model_name.lower().replace(" ", "_")
+        candidate = repo_models_dir / name_slug
+        candidate_model = candidate / "model.joblib"
+        if candidate_model.exists():
+            tried.append(candidate_model)
+            try:
+                return joblib.load(candidate_model)
+            except Exception as exc:
+                raise PredictionError(f"Failed to load model at {candidate_model}: {exc}") from exc
+
+        # fallback: any model.joblib under models/
+        for p in repo_models_dir.rglob("model.joblib"):
+            tried.append(p)
+            try:
+                return joblib.load(p)
+            except Exception:
+                continue
+
+    raise PredictionError(f"Model artifact not found. Tried: {', '.join(str(p) for p in tried)}")
 
 
 def _predict_row(

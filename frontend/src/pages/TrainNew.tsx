@@ -1,10 +1,20 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { createTrainingJob, getTrainingJob } from '../api/client';
+import { createTrainingJob, getTrainingJob, listTrainingJobs } from '../api/client';
 import type { TrainingJob } from '../api/types';
 import { StatusBadge } from '../components/Badge';
 
-const MODEL_OPTIONS = ['random_forest', 'extra_trees', 'xgboost', 'lightgbm', 'logistic_regression'];
+const MODEL_OPTIONS = ['random_forest', 'extra_trees', 'xgboost', 'lightgbm', 'svm'];
+
+function formatDuration(startedAt: string | null, finishedAt: string | null): string {
+  if (!startedAt) return '—';
+  const start = new Date(startedAt).getTime();
+  const end = finishedAt ? new Date(finishedAt).getTime() : Date.now();
+  const seconds = Math.max(0, Math.round((end - start) / 1000));
+  if (seconds < 60) return `${seconds}s`;
+  const minutes = Math.floor(seconds / 60);
+  return `${minutes}m ${seconds % 60}s`;
+}
 
 export function TrainNew() {
   const [targetColumn, setTargetColumn] = useState('Accident_Category');
@@ -12,9 +22,19 @@ export function TrainNew() {
   const [job, setJob] = useState<TrainingJob | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [history, setHistory] = useState<TrainingJob[]>([]);
+  const [historyLoading, setHistoryLoading] = useState(true);
   const pollRef = useRef<number | null>(null);
 
+  function loadHistory() {
+    listTrainingJobs()
+      .then(setHistory)
+      .catch(() => setHistory([]))
+      .finally(() => setHistoryLoading(false));
+  }
+
   useEffect(() => {
+    loadHistory();
     return () => {
       if (pollRef.current) window.clearInterval(pollRef.current);
     };
@@ -37,12 +57,14 @@ export function TrainNew() {
         model_candidates: selectedModels.length > 0 ? selectedModels : null,
       });
       setJob(created);
+      loadHistory();
 
       pollRef.current = window.setInterval(async () => {
         const updated = await getTrainingJob(created.id);
         setJob(updated);
         if (updated.status === 'completed' || updated.status === 'failed') {
           if (pollRef.current) window.clearInterval(pollRef.current);
+          loadHistory();
         }
       }, 2000);
     } catch (err: any) {
@@ -124,6 +146,56 @@ export function TrainNew() {
               </p>
             )}
           </div>
+        )}
+      </div>
+
+      <div className="card" style={{ marginTop: 16 }}>
+        <h2>Recent training jobs</h2>
+        {historyLoading && <div className="loading-state">Loading job history…</div>}
+        {!historyLoading && history.length === 0 && (
+          <div className="empty-state">No training jobs run yet.</div>
+        )}
+        {!historyLoading && history.length > 0 && (
+          <table>
+            <thead>
+              <tr>
+                <th>Target</th>
+                <th>Candidates</th>
+                <th>Status</th>
+                <th>Duration</th>
+                <th>Started</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              {history.map((j) => (
+                <tr key={j.id}>
+                  <td>{j.target_column}</td>
+                  <td style={{ fontSize: 12, color: 'var(--text-muted)' }}>
+                    {j.model_candidates ? j.model_candidates.join(', ') : 'all'}
+                  </td>
+                  <td>
+                    <StatusBadge status={j.status} />
+                  </td>
+                  <td className="tabular">{formatDuration(j.started_at, j.finished_at)}</td>
+                  <td className="tabular">
+                    {j.started_at ? new Date(j.started_at).toLocaleString() : '—'}
+                  </td>
+                  <td>
+                    {j.status === 'completed' && j.experiment_id ? (
+                      <Link to={`/experiments/${j.experiment_id}`}>View →</Link>
+                    ) : j.status === 'failed' ? (
+                      <span style={{ fontSize: 12, color: 'var(--risk-critical)' }} title={j.error_message ?? ''}>
+                        {(j.error_message ?? 'Failed').slice(0, 40)}
+                      </span>
+                    ) : (
+                      '—'
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         )}
       </div>
     </div>

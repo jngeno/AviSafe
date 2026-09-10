@@ -9,6 +9,7 @@ from __future__ import annotations
 from fastapi import APIRouter
 
 from src.core.config import Config
+from src.data.data_loader import DataLoader
 
 from .. import schemas
 from ..services import analytics_service
@@ -36,6 +37,15 @@ def list_datasets():
 
     categories = sorted(df["Accident_Category"].dropna().unique().tolist())
 
+    # Reuses DataLoader's own summary method (already used for the CLI's
+    # own diagnostics) rather than recomputing quality stats separately.
+    # Excludes Accident_Category: it's a derived label that's legitimately
+    # NaN for ~90% of rows by design (only narratives matching CFIT/LOC-I/
+    # Runway Excursion get one -- see AccidentCategoryLabeler), not a raw
+    # data-quality gap. Counting it here would make the source data look
+    # far dirtier than it actually is.
+    quality = DataLoader.dataset_summary(df.drop(columns=["Accident_Category"], errors="ignore"))
+
     return [
         {
             "name": "NTSB Aviation Accident Database",
@@ -46,5 +56,8 @@ def list_datasets():
             "accident_categories_covered": categories,
             "size_mb": round(path.stat().st_size / (1024 * 1024), 1),
             "status": "Active",
+            "missing_values": quality["missing_values"],
+            "duplicate_rows": quality["duplicate_rows"],
+            "column_names": sorted(df.columns.tolist()),
         }
     ]

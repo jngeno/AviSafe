@@ -1,26 +1,10 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import * as maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { getHotspots } from '../api/client';
 import type { HotspotPoint } from '../api/types';
 import { CATEGORY_ORDER, categoryColor } from '../components/categoryColor';
-
-const DARK_BASEMAP_STYLE = {
-  version: 8 as const,
-  sources: {
-    'carto-dark': {
-      type: 'raster' as const,
-      tiles: [
-        'https://a.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png',
-        'https://b.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png',
-        'https://c.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png',
-      ],
-      tileSize: 256,
-      attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
-    },
-  },
-  layers: [{ id: 'carto-dark-layer', type: 'raster' as const, source: 'carto-dark' }],
-};
+import { DARK_BASEMAP_STYLE } from '../mapStyle';
 
 function hexToRgb(hex: string): string {
   const clean = hex.replace('#', '');
@@ -56,6 +40,16 @@ export function RiskHeatmaps() {
       .then(setHotspots)
       .catch((err) => setError(err?.message ?? 'Failed to load hotspots'));
   }, [category]);
+
+  const totalEvents = useMemo(() => hotspots.reduce((sum, h) => sum + h.count, 0), [hotspots]);
+  const categoriesRepresented = useMemo(
+    () => new Set(hotspots.map((h) => h.category)).size,
+    [hotspots],
+  );
+  const topHotspots = useMemo(
+    () => [...hotspots].sort((a, b) => b.count - a.count).slice(0, 10),
+    [hotspots],
+  );
 
   useEffect(() => {
     const map = mapRef.current;
@@ -143,6 +137,54 @@ export function RiskHeatmaps() {
           ))}
         </div>
       </div>
+
+      {hotspots.length > 0 && (
+        <>
+          <div className="stat-grid" style={{ marginTop: 20 }}>
+            <div className="stat-tile">
+              <h3>Hotspot cells shown</h3>
+              <div className="stat-value">{hotspots.length}</div>
+            </div>
+            <div className="stat-tile">
+              <h3>Events represented</h3>
+              <div className="stat-value">{totalEvents}</div>
+            </div>
+            <div className="stat-tile">
+              <h3>Categories represented</h3>
+              <div className="stat-value">{categoriesRepresented}</div>
+            </div>
+          </div>
+
+          <div className="card" style={{ marginTop: 20 }}>
+            <h2>Top 10 hotspot locations</h2>
+            <p className="text-muted" style={{ fontSize: 13, marginTop: -2, marginBottom: 12 }}>
+              Highest-concentration coordinate cells currently on the map, ranked by event count.
+            </p>
+            <table>
+              <thead>
+                <tr>
+                  <th>Rank</th>
+                  <th>Category</th>
+                  <th>Latitude</th>
+                  <th>Longitude</th>
+                  <th>Events</th>
+                </tr>
+              </thead>
+              <tbody>
+                {topHotspots.map((h, i) => (
+                  <tr key={`${h.latitude}-${h.longitude}-${h.category}`}>
+                    <td className="tabular">{i + 1}</td>
+                    <td style={{ color: categoryColor(h.category), fontWeight: 600 }}>{h.category}</td>
+                    <td className="tabular">{h.latitude.toFixed(2)}</td>
+                    <td className="tabular">{h.longitude.toFixed(2)}</td>
+                    <td className="tabular">{h.count}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </>
+      )}
     </div>
   );
 }

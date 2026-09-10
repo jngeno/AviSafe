@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 import { listDatasets } from '../api/client';
 import type { DatasetInfo } from '../api/types';
 import { StatusBadge } from '../components/Badge';
@@ -8,6 +8,7 @@ export function Datasets() {
   const [datasets, setDatasets] = useState<DatasetInfo[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showColumns, setShowColumns] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     listDatasets()
@@ -57,6 +58,14 @@ export function Datasets() {
               <h3>Size on disk</h3>
               <div className="stat-value">{ds.size_mb} MB</div>
             </div>
+            <div className="stat-tile">
+              <h3>Missing values</h3>
+              <div className="stat-value">{ds.missing_values.toLocaleString()}</div>
+            </div>
+            <div className="stat-tile">
+              <h3>Duplicate rows</h3>
+              <div className="stat-value">{ds.duplicate_rows.toLocaleString()}</div>
+            </div>
           </div>
 
           <p style={{ marginTop: 16, marginBottom: 6 }}>
@@ -73,6 +82,27 @@ export function Datasets() {
               </span>
             ))}
           </div>
+
+          {ds.column_names.length > 0 && (
+            <div style={{ marginTop: 16 }}>
+              <button
+                type="button"
+                className="btn-secondary btn-small"
+                onClick={() => setShowColumns((s) => ({ ...s, [ds.path]: !s[ds.path] }))}
+              >
+                {showColumns[ds.path] ? 'Hide columns' : `Show all ${ds.column_names.length} columns`}
+              </button>
+              {showColumns[ds.path] && (
+                <div className="evidence-list" style={{ marginTop: 10 }}>
+                  {ds.column_names.map((c) => (
+                    <span className="evidence-chip" key={c}>
+                      {c}
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
         </div>
       ))}
     </div>

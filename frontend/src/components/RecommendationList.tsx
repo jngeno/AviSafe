@@ -6,7 +6,7 @@ export function RecommendationList({ recommendations }: { recommendations: Recom
   if (recommendations.length === 0) {
     return (
       <p>
-        No recommendations fired for this experiment — either the model's top features
+        No recommendations fired for this experiment - either the model's top features
         for each category didn't match a rule in the recommendation engine, or this
         experiment used a target other than accident category.
       </p>

@@ -50,6 +50,27 @@ class SafetyRecommendation:
     assigned_officer: str | None = None
 
     due_date: str | None = None
+    
+    # Enhanced depth fields
+    impact_assessment: str = ""
+    
+    implementation_steps: list[str] = None
+    
+    affected_systems: list[str] = None
+    
+    regulatory_framework: str = ""
+    
+    industry_precedent: str = ""
+    
+    risk_mitigation_factor: float = 0.0
+    
+    related_accidents_count: int = 0
+
+    def __post_init__(self):
+        if self.implementation_steps is None:
+            self.implementation_steps = []
+        if self.affected_systems is None:
+            self.affected_systems = []
 
 
 class RecommendationEngine:
@@ -145,6 +166,19 @@ class RecommendationEngine:
         Excursion High), which describe physical-environment
         conditions and are classified under "Preconditions for Unsafe
         Acts" accordingly.
+
+        NOTE on the geographic/temporal/phase rules added below (2026-08):
+        the original six rules above were written before this project ran
+        a 7-year-recent-data split, and on that split's SHAP output,
+        `Country`, `Latitude`, `Longitude`, and `Event_Year` are top-5
+        dominant features for all three categories, while `Weather_*` and
+        `Aircraft_Age` are not -- meaning LOC-I in particular had zero
+        matching rule (see O6 addition / notebook Step 14 gap). These new
+        rules cover that gap directly. Unlike the six above, this text is
+        new authored content, not a pre-existing rule re-classified
+        against the frameworks -- the ICAO references are a best-effort
+        match and should be spot-checked against the actual document
+        text before being treated as citation-grade.
         """
 
         return {
@@ -215,6 +249,71 @@ class RecommendationEngine:
 
                 },
 
+                {
+
+                    "features": [
+
+                        "Country",
+
+                        "Latitude",
+
+                        "Longitude",
+
+                    ],
+
+                    "priority": "Medium",
+
+                    "stakeholder": "Regulatory Affairs",
+
+                    "recommendation":
+                        (
+                            "Analyze CFIT accident geographic "
+                            "concentration to identify "
+                            "jurisdiction- or terrain-specific "
+                            "regulatory, charting, or "
+                            "infrastructure gaps (e.g. missing "
+                            "instrument approach procedures, "
+                            "inadequate obstacle charting)."
+                        ),
+
+                    "icao_reference": "ICAO Annex 4 (charting); Annex 15 (Aeronautical Information Services)",
+
+                    "hfacs_classification": "Organizational Influences -- Regulatory/Resource Gaps",
+
+                    "swiss_cheese_layer": "Organizational Influences",
+
+                },
+
+                {
+
+                    "features": [
+
+                        "Event_Year",
+
+                    ],
+
+                    "priority": "Low",
+
+                    "stakeholder": "Safety Data & Analytics",
+
+                    "recommendation":
+                        (
+                            "Investigate the temporal trend in "
+                            "CFIT rate to determine whether it "
+                            "reflects fleet/avionics composition "
+                            "changes, regulatory changes, or "
+                            "reporting practice shifts over the "
+                            "analyzed period."
+                        ),
+
+                    "icao_reference": "ICAO Doc 9859 (SMM) -- safety trend monitoring",
+
+                    "hfacs_classification": "Organizational Influences -- Safety Data Analysis",
+
+                    "swiss_cheese_layer": "Organizational Influences",
+
+                },
+
             ],
 
             "LOC-I": [
@@ -272,6 +371,107 @@ class RecommendationEngine:
                     "icao_reference": "ICAO Annex 6 Part I -- Continuing Airworthiness",
 
                     "hfacs_classification": "Organizational Influences -- Resource Management (Maintenance)",
+
+                    "swiss_cheese_layer": "Organizational Influences",
+
+                },
+
+                {
+
+                    "features": [
+
+                        "Flight_Phase_Risk",
+
+                        "Broad_Phase_Of_Flight",
+
+                        "Flight_Phase_Code",
+
+                    ],
+
+                    "priority": "High",
+
+                    "stakeholder": "Training Department",
+
+                    "recommendation":
+                        (
+                            "Target upset-prevention and "
+                            "recovery training specifically at "
+                            "the flight phases most associated "
+                            "with LOC-I events (e.g. "
+                            "maneuvering, initial climb, "
+                            "go-around), not only generic "
+                            "recurrent training."
+                        ),
+
+                    "icao_reference": "ICAO Doc 10011 (UPRT Manual) -- phase-specific application",
+
+                    "hfacs_classification": "Organizational Influences -- Training Program Issues",
+
+                    "swiss_cheese_layer": "Organizational Influences",
+
+                },
+
+                {
+
+                    "features": [
+
+                        "Country",
+
+                        "Latitude",
+
+                        "Longitude",
+
+                    ],
+
+                    "priority": "Medium",
+
+                    "stakeholder": "Regulatory Affairs",
+
+                    "recommendation":
+                        (
+                            "Analyze LOC-I geographic "
+                            "concentration to identify whether "
+                            "specific operating environments "
+                            "(mountainous/high-density-altitude "
+                            "regions, specific national "
+                            "training pipelines) are "
+                            "over-represented."
+                        ),
+
+                    "icao_reference": "ICAO Annex 6 Part I; Doc 9859 (SMM) -- regional risk analysis",
+
+                    "hfacs_classification": "Organizational Influences -- Regulatory/Resource Gaps",
+
+                    "swiss_cheese_layer": "Organizational Influences",
+
+                },
+
+                {
+
+                    "features": [
+
+                        "Event_Year",
+
+                    ],
+
+                    "priority": "Low",
+
+                    "stakeholder": "Safety Data & Analytics",
+
+                    "recommendation":
+                        (
+                            "Investigate the temporal trend in "
+                            "LOC-I rate to determine whether it "
+                            "reflects changes in fleet "
+                            "automation/envelope-protection "
+                            "equipage, training standards, or "
+                            "reporting practice over the "
+                            "analyzed period."
+                        ),
+
+                    "icao_reference": "ICAO Doc 9859 (SMM) -- safety trend monitoring",
+
+                    "hfacs_classification": "Organizational Influences -- Safety Data Analysis",
 
                     "swiss_cheese_layer": "Organizational Influences",
 
@@ -336,6 +536,74 @@ class RecommendationEngine:
                     "icao_reference": "ICAO Doc 8168 (PANS-OPS) -- landing performance assessment",
 
                     "hfacs_classification": "Organizational Influences -- Procedural Guidance",
+
+                    "swiss_cheese_layer": "Organizational Influences",
+
+                },
+
+                {
+
+                    "features": [
+
+                        "Country",
+
+                        "Latitude",
+
+                        "Longitude",
+
+                    ],
+
+                    "priority": "Medium",
+
+                    "stakeholder": "Regulatory Affairs",
+
+                    "recommendation":
+                        (
+                            "Analyze runway excursion "
+                            "geographic concentration to "
+                            "identify whether specific "
+                            "airports/jurisdictions are "
+                            "over-represented, pointing at "
+                            "local runway infrastructure or "
+                            "procedural gaps rather than a "
+                            "generic fleet-wide issue."
+                        ),
+
+                    "icao_reference": "ICAO Annex 14; Doc 9859 (SMM) -- regional risk analysis",
+
+                    "hfacs_classification": "Organizational Influences -- Regulatory/Resource Gaps",
+
+                    "swiss_cheese_layer": "Organizational Influences",
+
+                },
+
+                {
+
+                    "features": [
+
+                        "Event_Year",
+
+                    ],
+
+                    "priority": "Low",
+
+                    "stakeholder": "Safety Data & Analytics",
+
+                    "recommendation":
+                        (
+                            "Investigate the temporal trend in "
+                            "runway excursion rate to determine "
+                            "whether it reflects changes in "
+                            "runway infrastructure/reporting "
+                            "(e.g. Global Reporting Format "
+                            "adoption), fleet braking "
+                            "technology, or reporting practice "
+                            "over the analyzed period."
+                        ),
+
+                    "icao_reference": "ICAO Doc 9859 (SMM) -- safety trend monitoring",
+
+                    "hfacs_classification": "Organizational Influences -- Safety Data Analysis",
 
                     "swiss_cheese_layer": "Organizational Influences",
 

@@ -9,7 +9,7 @@ import { RecommendationList } from '../components/RecommendationList';
 import { categoryColor } from '../components/categoryColor';
 
 function formatMetric(value: unknown): string {
-  if (typeof value !== 'number' || Number.isNaN(value)) return '—';
+  if (typeof value !== 'number' || Number.isNaN(value)) return '-';
   return value.toFixed(3);
 }
 
@@ -28,6 +28,12 @@ export function ExperimentDetailPage() {
   if (error) return <div className="error-state">{error}</div>;
   if (!experiment) return <div className="loading-state">Loading…</div>;
 
+  const rawBestParams = experiment.cv_metrics.best_parameters;
+  const bestParams =
+    rawBestParams && typeof rawBestParams === 'object'
+      ? (rawBestParams as Record<string, unknown>)
+      : null;
+
   return (
     <div>
       <div className="page-header">
@@ -45,6 +51,15 @@ export function ExperimentDetailPage() {
         <StatTile label="Matthews CC" value={formatMetric(experiment.test_metrics.matthews_cc)} />
         <StatTile label="Balanced accuracy" value={formatMetric(experiment.test_metrics.balanced_accuracy)} />
         <StatTile label="Cohen's kappa" value={formatMetric(experiment.test_metrics.cohen_kappa)} />
+        <StatTile
+          label="CV F1 (weighted mean)"
+          value={formatMetric(experiment.cv_metrics.f1_weighted_mean)}
+          sub="5-fold cross-validation, used for model selection"
+        />
+        <StatTile
+          label="Training time"
+          value={experiment.training_time > 0 ? `${experiment.training_time.toFixed(1)}s` : '—'}
+        />
       </div>
 
       <div className="card-grid">
@@ -86,10 +101,31 @@ export function ExperimentDetailPage() {
         <RecommendationList recommendations={experiment.recommendations} />
       </div>
 
+      {bestParams && (
+        <div className="card">
+          <h2>Hyperparameter search result</h2>
+          <p>
+            The specific values RandomizedSearchCV selected out of its search space during
+            cross-validation -- a subset of the full parameter table below, scoped to what was
+            actually tuned rather than every constructor argument.
+          </p>
+          <table>
+            <tbody>
+              {Object.entries(bestParams).map(([key, value]) => (
+                <tr key={key}>
+                  <td style={{ color: 'var(--text-muted)' }}>{key}</td>
+                  <td className="tabular">{String(value)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
       <div className="card">
         <h2>Model parameters</h2>
         <p>
-          Non-default values only — the underlying estimator accepts many more
+          Non-default values only - the underlying estimator accepts many more
           constructor arguments left at their library default (shown as null and
           omitted here).
         </p>

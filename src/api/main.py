@@ -13,18 +13,25 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from src.core.logger import LoggerManager
+from src.core.settings import get_settings
 
 from .routers import (
+    airports,
+    alerts,
     analytics,
     datasets,
     experiments,
     health,
+    incidents,
+    investigations,
     predictions,
     recommendations,
     reports,
+    risk_register,
+    safety_actions,
     training,
 )
-from .services import analytics_service
+from .services import analytics_service, airport_service
 
 logger = LoggerManager.get_logger(__name__)
 
@@ -45,6 +52,11 @@ async def lifespan(app: FastAPI):
         except Exception:
             logger.exception("Failed to warm analytics cache at startup")
 
+        try:
+            airport_service.get_airports()
+        except Exception:
+            logger.exception("Failed to warm airport directory cache at startup")
+
     threading.Thread(target=_warm, daemon=True).start()
 
     yield
@@ -61,12 +73,24 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+_dev_origins = [
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+    "http://localhost:5174",
+    "http://127.0.0.1:5174",
+    "http://localhost:5175",
+    "http://127.0.0.1:5175",
+    "http://192.168.11.156:5175",
+]
+_extra_origins = [
+    origin.strip()
+    for origin in get_settings().cors_extra_origins.split(",")
+    if origin.strip()
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:5173",
-        "http://127.0.0.1:5173",
-    ],
+    allow_origins=_dev_origins + _extra_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -77,6 +101,12 @@ app.include_router(experiments.router)
 app.include_router(training.router)
 app.include_router(predictions.router)
 app.include_router(recommendations.router)
+app.include_router(risk_register.router)
+app.include_router(incidents.router)
+app.include_router(investigations.router)
+app.include_router(safety_actions.router)
+app.include_router(alerts.router)
 app.include_router(analytics.router)
 app.include_router(datasets.router)
 app.include_router(reports.router)
+app.include_router(airports.router)
