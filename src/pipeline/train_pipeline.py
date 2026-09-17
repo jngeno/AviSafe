@@ -41,6 +41,7 @@ weaker match for present-day operational risk.
 from __future__ import annotations
 
 from dataclasses import dataclass
+from datetime import datetime
 from pathlib import Path
 
 import pandas as pd
@@ -693,9 +694,10 @@ if __name__ == "__main__":
 
     from ..explainability.report_generator import SafetyReportGenerator
 
+    finished = datetime.fromisoformat(results.experiment.finished_at)
     report_path = (
         Path("reports")
-        / f"safety_report_{results.experiment.target_column}_{results.experiment.experiment_id}.md"
+        / f"safety_report_{results.experiment.target_column}_{finished:%Y-%m-%d_%H%M}_{results.experiment.experiment_id[:8]}.md"
     )
 
     SafetyReportGenerator().save(results, report_path)

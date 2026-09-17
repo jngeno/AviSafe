@@ -1,5 +1,3 @@
-# --- Machine learning / data core: installed and exercised end-to-end
-# (data pipeline, training, tuning, SHAP/LIME, tests) in this environment.
 pandas==3.0.3
 numpy==2.4.6
 scikit-learn==1.9.0
@@ -10,10 +8,6 @@ lime==0.2.0.1
 joblib==1.5.3
 python-dotenv==1.2.2
 pytest==9.1.1
-
-# --- Service/database layer: installed and exercised end-to-end
-# (src/api, src/database, alembic migrations against PostgreSQL, live
-# training/prediction endpoints all tested in this environment).
 fastapi==0.141.1
 uvicorn[standard]==0.52.0
 sqlalchemy==2.0.51
@@ -23,19 +17,10 @@ pydantic==2.13.4
 pydantic-settings==2.14.2
 httpx==0.28.1
 python-multipart==0.0.32
-
-# --- Notebook orchestration/visualisation layer: installed and exercised
-# (notebooks/ pipeline walkthrough, matplotlib/seaborn charts, executed
-# end-to-end via nbclient in this environment).
 matplotlib==3.11.1
 seaborn==0.13.2
 nbformat==5.10.4
 ipykernel==7.3.0
 nbclient==0.10.2
 nbconvert==7.16.6
-
-# --- Not yet used: no chart/report code in src/visualization currently
-# calls plotly (the React dashboard uses hand-built SVG/CSS charts
-# instead -- see frontend/). Kept as a placeholder for the planned
-# Python-side report/notebook visualisation layer.
 plotly==5.18.0

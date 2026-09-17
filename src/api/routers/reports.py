@@ -18,7 +18,27 @@ from .. import schemas
 
 router = APIRouter(prefix="/reports", tags=["reports"])
 
-_FILENAME_RE = re.compile(r"^safety_report_(?:(?P<target>[A-Za-z_]+)_)?(?P<experiment_id>[0-9a-f-]{8,})\.md$")
+_FILENAME_RE = re.compile(
+    r"^safety_report_(?P<target>[A-Za-z_]+)_(?P<date>\d{4}-\d{2}-\d{2})_(?P<time>\d{4})_(?P<experiment_id>[0-9a-f]{6,})\.md$"
+)
+
+
+def _generated_at(path, match: re.Match | None) -> datetime:
+    """
+    The filename encodes the real generation timestamp; file mtime only
+    reflects the last checkout/copy and isn't trustworthy (see the
+    "rename reports" cleanup that introduced this convention).
+    """
+
+    if match:
+        try:
+            return datetime.strptime(
+                f"{match.group('date')} {match.group('time')}", "%Y-%m-%d %H%M"
+            ).replace(tzinfo=timezone.utc)
+        except ValueError:
+            pass
+
+    return datetime.fromtimestamp(path.stat().st_mtime, tz=timezone.utc)
 
 
 @router.get("", response_model=list[schemas.ReportSummary])
@@ -32,7 +52,7 @@ def list_reports():
 
         summaries = []
 
-        for path in sorted(reports_dir.glob("*.md"), key=lambda p: p.stat().st_mtime, reverse=True):
+        for path in reports_dir.glob("*.md"):
 
             match = _FILENAME_RE.match(path.name)
 
@@ -41,14 +61,15 @@ def list_reports():
                     "filename": path.name,
                     "target_column": match.group("target") if match else None,
                     "experiment_id": match.group("experiment_id") if match else None,
-                    "generated_at": datetime.fromtimestamp(path.stat().st_mtime, tz=timezone.utc),
+                    "generated_at": _generated_at(path, match),
                     "size_kb": round(path.stat().st_size / 1024, 1),
                 }
             )
 
+        summaries.sort(key=lambda s: s["generated_at"], reverse=True)
+
         return summaries
     except Exception:
-        # If reports can't be listed, return empty list
         return []
 
 
