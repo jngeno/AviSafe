@@ -102,6 +102,7 @@ class RecommendationEngine:
                 [],
             )
 
+            category_recommendation_count = 0
             for rule in rules:
 
                 if any(
@@ -132,8 +133,32 @@ class RecommendationEngine:
                             swiss_cheese_layer=rule.get("swiss_cheese_layer", ""),
 
                         )
-
                     )
+                    category_recommendation_count += 1
+
+            if pattern.accident_category == "LOC-I" and category_recommendation_count == 0:
+                recommendations.append(
+                    SafetyRecommendation(
+                        accident_category="LOC-I",
+                        priority="High",
+                        recommendation=(
+                            "Review the LOC-I scenario through upset prevention and "
+                            "recovery training, flight-phase risk controls, and "
+                            "manual flight proficiency procedures."
+                        ),
+                        evidence=pattern.dominant_features,
+                        stakeholder="Flight Operations & Training Department",
+                        confidence=pattern.confidence,
+                        icao_reference=(
+                            "ICAO Doc 10011 (Manual on Aeroplane Upset Prevention "
+                            "and Recovery Training)"
+                        ),
+                        hfacs_classification=(
+                            "Organizational Influences -- Training Program Issues"
+                        ),
+                        swiss_cheese_layer="Organizational Influences",
+                    )
+                )
 
         return recommendations
 
