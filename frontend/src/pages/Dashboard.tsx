@@ -77,7 +77,6 @@ export function Dashboard() {
   const [aircraft, setAircraft] = useState<AircraftAnalytics[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [showAbstract, setShowAbstract] = useState(false);
 
   useEffect(() => {
     getDashboardSummary()
@@ -135,7 +134,7 @@ export function Dashboard() {
   return (
     <div>
       {/* Safety Intelligence Hero Banner */}
-      <div className="card dashboard-academic-hero">
+      <div className="card dashboard-hero">
         <div className="dashboard-hero-content">
           <div className="dashboard-hero-kicker">Aviation Safety Intelligence</div>
           <h1 className="dashboard-hero-title">
@@ -145,77 +144,13 @@ export function Dashboard() {
             An Explainable AI Framework for Systemic Aviation Accident Causation Analysis - combining multi-decade NTSB accident records, ensemble machine learning, dual TreeSHAP/LIME explainability, and James Reason&apos;s Swiss Cheese Model across CFIT, LOC-I, and Runway Excursions.
           </p>
 
-          <div className="thesis-author-strip dashboard-hero-meta">
-            <div>
-              <span className="author-label">Candidate</span>
-              <strong style={{ color: 'var(--text-primary)' }}>Esther Wambui Maina</strong>
-            </div>
-            <div>
-              <span className="author-label">Supervisor</span>
-              <strong style={{ color: 'var(--text-primary)' }}>Dr Krishnadas Nanath</strong>
-            </div>
-            <div>
-              <span className="author-label">Methodology Scope</span>
-              <strong>104 Sources (Kitchenham 2004)</strong>
-            </div>
-          </div>
-
           <div className="dashboard-hero-actions">
             <Link to="/flight-risk-assessment" className="btn-secondary">
               Live Scenario Simulator
             </Link>
-            <button
-              type="button"
-              className="btn-secondary"
-              onClick={() => setShowAbstract((v) => !v)}
-            >
-              {showAbstract ? 'Hide Systematic Review Briefing' : 'Systematic Review & RQ1–4'}
-            </button>
           </div>
         </div>
       </div>
-
-      {/* Collapsible Research Abstract & Objectives Card */}
-      {showAbstract && (
-        <div className="card research-abstract-card" style={{ marginTop: 16 }}>
-          <div className="recommendation-head">
-            <div>
-              <h3 style={{ margin: '0 0 4px' }}>Systematic Literature Review Synthesis (Kitchenham 2004)</h3>
-              <p className="text-muted" style={{ margin: 0, fontSize: 13 }}>
-                Dissertation Research Questions &amp; Findings from 104 synthesized peer-reviewed and regulatory sources:
-              </p>
-            </div>
-            <span className="research-tag">Thesis RQs</span>
-          </div>
-
-          <div className="card-grid" style={{ marginTop: 14 }}>
-            <div className="rq-box">
-              <div className="rq-number">RQ 1</div>
-              <p>
-                <strong>ML on Structured NTSB Data:</strong> Investigating predictive value of flight phase, weather, and operational variables across ensemble classifiers (Ayra &amp; Wardt 2020; Rodríguez-Sanz et al. 2021) and SMOTE class imbalance handling.
-              </p>
-            </div>
-            <div className="rq-box">
-              <div className="rq-number">RQ 2</div>
-              <p>
-                <strong>Bayesian Causal Tradition:</strong> Probabilistic causal graphs (Luxhoj &amp; Coit 2006; Zhang &amp; Mahadevan 2021) capturing multi-factor dependency structures directly from NTSB investigation reports.
-              </p>
-            </div>
-            <div className="rq-box">
-              <div className="rq-number">RQ 3</div>
-              <p>
-                <strong>Explainable AI Readiness:</strong> Foundations of TreeSHAP (Lundberg et al. 2020) and LIME (Ribeiro et al. 2016) with multi-model consistency checks (Fisher et al. 2019) to eliminate &ldquo;Clever Hans&rdquo; spurious predictors.
-              </p>
-            </div>
-            <div className="rq-box">
-              <div className="rq-number">RQ 4</div>
-              <p>
-                <strong>Safety Theory &amp; Regulation:</strong> Evolution from Reason (1990) Swiss Cheese &amp; HFACS to EASA AI Roadmap 2.0 / MLEAP and FAA (2024) AI Safety Assurance mandates.
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
 
       <div className="page-header" style={{ marginTop: 24 }}>
         <h2>Aviation Safety Analytics &amp; Model Operations</h2>
