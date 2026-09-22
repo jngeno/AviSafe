@@ -138,7 +138,6 @@ export function Dashboard() {
       <div className="card dashboard-academic-hero">
         <div className="dashboard-hero-content">
           <div className="defense-badge-row">
-            <span className="research-tag">MSc Dissertation Platform</span>
             <span className="badge badge--success">MISIS: M01088206</span>
             <span className="badge" style={{ background: 'var(--surface-2)', color: 'var(--text-secondary)' }}>
               MSc Data Science &amp; AI
