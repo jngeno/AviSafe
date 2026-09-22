@@ -727,10 +727,10 @@ kbd {
 }
 
 /* =========================================================================
-   ACADEMIC DASHBOARD HERO & RESEARCH OBJECTIVES
+   SAFETY INTELLIGENCE DASHBOARD HERO
    ========================================================================= */
 
-.dashboard-academic-hero {
+.dashboard-hero {
   background: linear-gradient(135deg, color-mix(in srgb, var(--brand-primary) 18%, var(--surface-1)), var(--surface-1));
   border: 1px solid color-mix(in srgb, var(--brand-accent) 30%, var(--border));
   position: relative;
@@ -766,41 +766,6 @@ kbd {
   align-items: center;
   gap: 10px;
   flex-wrap: wrap;
-}
-
-.dashboard-hero-meta {
-  margin: 10px 0 16px;
-  max-width: 850px;
-}
-
-.research-abstract-card {
-  border-left: 4px solid var(--brand-accent);
-}
-
-.rq-box {
-  background: var(--surface-2);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 14px;
-  display: flex;
-  gap: 12px;
-  align-items: flex-start;
-}
-
-.rq-number {
-  background: var(--brand-accent);
-  color: #fff;
-  font-size: 11px;
-  font-weight: 700;
-  padding: 3px 8px;
-  border-radius: 4px;
-  flex-shrink: 0;
-}
-
-.rq-box p {
-  margin: 0;
-  font-size: 13px;
-  line-height: 1.5;
 }
 
 /* =========================================================================
