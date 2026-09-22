@@ -138,10 +138,10 @@ export function Dashboard() {
         <div className="dashboard-hero-content">
           <div className="dashboard-hero-kicker">Aviation Safety Intelligence</div>
           <h1 className="dashboard-hero-title">
-            AviSafe: Beyond the Black Box
+            AviSafe Safety Intelligence
           </h1>
           <p className="dashboard-hero-subtitle">
-            An Explainable AI Framework for Systemic Aviation Accident Causation Analysis - combining multi-decade NTSB accident records, ensemble machine learning, dual TreeSHAP/LIME explainability, and James Reason&apos;s Swiss Cheese Model across CFIT, LOC-I, and Runway Excursions.
+            Monitor aviation risk with clear, explainable insights from accident records, operational patterns, and real-time safety indicators across CFIT, LOC-I, and runway excursions.
           </p>
 
           <div className="dashboard-hero-actions">
