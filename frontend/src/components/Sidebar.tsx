@@ -77,7 +77,6 @@ export function Sidebar() {
         </nav>
 
         <div className="sidebar-footer">
-          <p>MSc Thesis Platform</p>
           <p>Explainable AI &middot; Systemic Causation</p>
         </div>
       </aside>

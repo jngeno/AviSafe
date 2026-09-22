@@ -737,9 +737,18 @@ kbd {
   overflow: hidden;
 }
 
+.dashboard-hero-kicker {
+  color: var(--brand-accent);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
 .dashboard-hero-title {
   font-size: 26px;
-  margin: 10px 0 6px;
+  margin: 0 0 6px;
   color: var(--text-primary);
   letter-spacing: -0.3px;
 }
@@ -757,6 +766,11 @@ kbd {
   align-items: center;
   gap: 10px;
   flex-wrap: wrap;
+}
+
+.dashboard-hero-meta {
+  margin: 10px 0 16px;
+  max-width: 850px;
 }
 
 .research-abstract-card {
