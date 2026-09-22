@@ -134,16 +134,10 @@ export function Dashboard() {
 
   return (
     <div>
-      {/* Academic Defense Hero Banner */}
+      {/* Safety Intelligence Hero Banner */}
       <div className="card dashboard-academic-hero">
         <div className="dashboard-hero-content">
-          <div className="defense-badge-row">
-            <span className="badge badge--success">MISIS: M01088206</span>
-            <span className="badge" style={{ background: 'var(--surface-2)', color: 'var(--text-secondary)' }}>
-              MSc Data Science &amp; AI
-            </span>
-          </div>
-
+          <div className="dashboard-hero-kicker">Aviation Safety Intelligence</div>
           <h1 className="dashboard-hero-title">
             AviSafe: Beyond the Black Box
           </h1>
@@ -151,7 +145,7 @@ export function Dashboard() {
             An Explainable AI Framework for Systemic Aviation Accident Causation Analysis - combining multi-decade NTSB accident records, ensemble machine learning, dual TreeSHAP/LIME explainability, and James Reason&apos;s Swiss Cheese Model across CFIT, LOC-I, and Runway Excursions.
           </p>
 
-          <div className="thesis-author-strip" style={{ margin: '10px 0 16px', maxWidth: 850 }}>
+          <div className="thesis-author-strip dashboard-hero-meta">
             <div>
               <span className="author-label">Candidate</span>
               <strong style={{ color: 'var(--text-primary)' }}>Esther Wambui Maina</strong>
